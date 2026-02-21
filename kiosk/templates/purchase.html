@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Køb Gennemført{% endblock %}
+
+{% block head %}
+<meta http-equiv="refresh" content="4; url='{{ url_for('auth.logout') }}'" />
+{% endblock %}
+
+{% block content %}
+<div
+    style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; z-index: 9999;">
+    <img id="success-svg" src="{{ url_for('static', filename='purchaseComplete.svg') }}"
+        style="width: 100%; height: 100%; object-fit: contain; padding: 2rem; box-sizing: border-box;"
+        alt="Køb Gennemført">
+    <audio id="success-audio">
+        <source src="{{ url_for('static', filename='ka-ching.wav') }}" type="audio/wav">
+    </audio>
+    <script>
+        document.getElementById('success-svg').src += '?v=' + new Date().getTime();
+        setTimeout(function () {
+            var audio = document.getElementById('success-audio');
+            if (audio) audio.play();
+        }, 2000);
+    </script>
+</div>
+{% endblock %}

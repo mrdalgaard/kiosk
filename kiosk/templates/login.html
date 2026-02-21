@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Kantine Login{% endblock %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='login.js') }}" type="module"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<style>
+    /* Viewport lock to prevent any unwanted scrolling on tablet */
+    html,
+    body {
+        height: 100vh !important;
+        overflow: hidden !important;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        /* Simple light grey background */
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Left Column: Interaction Pane -->
+    <div class="panel interaction-pane">
+
+        <div class="brand-header">
+            <h1 style="position: relative; z-index: 1;">AASvK Kantine</h1>
+            <h2 style="position: relative; z-index: 1;">Login med medlemsnummer</h2>
+        </div>
+
+        <div class="pin-display-wrapper">
+            <div id="pin-display" class="pin-display-fluid"></div>
+        </div>
+
+        {% if error %}
+        <script>document.addEventListener('DOMContentLoaded', function () { showToast('{{ error }}', 'error'); });</script>
+        {% endif %}
+
+        <div class="keypad-grid">
+            <div class="key-card" onclick="updatePin('1')"><span class="key-num">1</span></div>
+            <div class="key-card" onclick="updatePin('2')"><span class="key-num">2</span></div>
+            <div class="key-card" onclick="updatePin('3')"><span class="key-num">3</span></div>
+
+            <div class="key-card" onclick="updatePin('4')"><span class="key-num">4</span></div>
+            <div class="key-card" onclick="updatePin('5')"><span class="key-num">5</span></div>
+            <div class="key-card" onclick="updatePin('6')"><span class="key-num">6</span></div>
+
+            <div class="key-card" onclick="updatePin('7')"><span class="key-num">7</span></div>
+            <div class="key-card" onclick="updatePin('8')"><span class="key-num">8</span></div>
+            <div class="key-card" onclick="updatePin('9')"><span class="key-num">9</span></div>
+
+            <div class="key-card clear-btn" onclick="clearPin()">
+                <span class="key-text">Slet</span>
+            </div>
+            <div class="key-card" onclick="updatePin('0')"><span class="key-num">0</span></div>
+            <div class="key-card submit-btn" onclick="document.getElementById('login-form').submit()">
+                <span class="key-text">Log ind</span>
+            </div>
+        </div>
+
+        <!-- Hidden form for actual submission -->
+        <form id="login-form" method="post" action="{{ url_for('auth.login') }}" style="display: none;"
+            autocomplete="off">
+            <input type="text" id="customer_id" name="customer_id" autocomplete="off" required />
+        </form>
+
+        <div class="utility-actions">
+            <form method="post" action="{{ url_for('auth.login') }}" class="util-form">
+                <input type="hidden" name="customer_id" value="100" />
+                <button class="action-btn btn-accent" type="submit" style="z-index: 1;">
+                    Gæsteinstruktør
+                </button>
+            </form>
+            <form method="get" action="{{ url_for('api.customer_list') }}" class="util-form">
+                <button class="action-btn btn-secondary" type="submit" style="z-index: 1;">
+                    Medlemsliste
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: Information Pane -->
+    <div class="panel info-pane" style="position: relative;">
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" alt="AaSvK Logo">
+
+        <div class="info-header" style="position: relative; z-index: 1;">
+            <h3>Dagens Salg</h3>
+        </div>
+        <div class="table-scroll-area">
+            <table class="data-table" style="position: relative; z-index: 1;">
+                <thead>
+                    <tr>
+                        <th class="col-medlem">Medlem</th>
+                        <th class="col-vare">Vare</th>
+                        <th class="col-antal">Antal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in purchasehistory %}
+                    <tr>
+                        <td class="col-medlem">{{ item["customername"] }}</td>
+                        <td class="col-vare">{{ item["soldproductname"] }}</td>
+                        <td class="col-antal">
+                            <span class="badge">{{ item["sum"] }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    {% if not purchasehistory %}
+                    <tr>
+                        <td colspan="3" class="empty-state">Ingen salg endnu i dag</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updatePin(digit) {
+        const input = document.getElementById('customer_id');
+        const display = document.getElementById('pin-display');
+        input.value += digit;
+        display.innerText = input.value;
+    }
+    function clearPin() {
+        document.getElementById('customer_id').value = '';
+        document.getElementById('pin-display').innerText = '';
+    }
+    // Handle keyboard input (fallback logic if kioskboard is attached to body)
+    document.addEventListener('keydown', function (e) {
+        if (e.key >= '0' && e.key <= '9') {
+            updatePin(e.key);
+        } else if (e.key === 'Backspace') {
+            const input = document.getElementById('customer_id');
+            input.value = input.value.slice(0, -1);
+            document.getElementById('pin-display').innerText = input.value;
+        } else if (e.key === 'Enter') {
+            document.getElementById('login-form').submit();
+        }
+    });
+</script>
+{% endblock %}

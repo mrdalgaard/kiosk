@@ -1,0 +1,39 @@
+services:
+  app:
+    build: .
+    # container_name allows multiple instances on the same host if desired
+    container_name: ${CONTAINER_NAME:-kiosk-app}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/images:/app/kiosk/static/images
+    # Use environment variables from .env
+    env_file:
+      - .env
+    environment:
+      - TZ=${TIMEZONE:-Europe/Copenhagen}
+    restart: unless-stopped
+    ports:
+      - "5000:5000" # Expose port 5000 for the app
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    # Optional: If the database is also managed by compose
+    # depends_on:
+    #   - db
+
+    # Example of an attached database service
+    #  db:
+    #    image: postgres:alpine
+    #    restart: unless-stopped
+    #    environment:
+    #      - POSTGRES_DB=${DB_NAME:-KioskPOS}
+    #      - POSTGRES_USER=${DB_USER:-KioskPOS}
+    #      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    #    volumes:
+    #      - db_data:/var/lib/postgresql/data
+
+    # volumes:
+    #   db_data:

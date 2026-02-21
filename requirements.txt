@@ -1,0 +1,6 @@
+Flask
+psycopg[binary,pool]
+requests
+Flask-DebugToolbar
+flask_apscheduler
+gunicorn

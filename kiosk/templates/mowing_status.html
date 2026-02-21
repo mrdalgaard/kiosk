@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}AASvK Greenteam{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+
+    <!-- Left Column: Needs Mowing Pane (Approx 50%) -->
+    <div class="panel interaction-pane" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="brand-header"
+            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">AASvK Greenteam</h1>
+        </div>
+
+        <div class="info-header" style="position: relative; z-index: 1;">
+            <h3>Dage siden sidste klipning</h3>
+        </div>
+
+        <div class="table-scroll-area" style="flex: 1; position: relative; z-index: 1; margin-bottom: 1rem;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Sektion</th>
+                        <th class="col-antal" style="width: 20%; padding-right: 1.25rem;">Dage</th>
+                        <th style="width: 50%;">Person</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in last_mowed %}
+                    <tr>
+                        <td style="font-weight: bold;">{{ activity.section_name }}</td>
+                        <td class="col-antal">
+                            <span class="badge" style="padding-right: 0.75rem;">{{ activity.days }}</span>
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 1.1rem;">{{ activity.customername }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not last_mowed %}
+                    <tr>
+                        <td colspan="3" class="empty-state">Ingen klipninger fundet</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="width: 100%; height: 5rem; margin-top: auto; flex-shrink: 0;">
+            <form method="get" action="{{ url_for('main.index') }}" class="util-form" style="height: 100%;">
+                <button class="action-btn clear-btn" type="submit" style="font-size: 1.25rem;">Tilbage til
+                    Kiosken</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Column: History Pane (Approx 50%) -->
+    <div class="panel info-pane" style="flex: 1; display: flex; flex-direction: column; position: relative;">
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+
+        <div class="info-header" style="position: relative; z-index: 1;">
+            <h3>Klippelog</h3>
+        </div>
+
+        <div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Dato</th>
+                        <th style="width: 25%;">Sektion</th>
+                        <th style="width: 20%; text-align: center;">Grad</th>
+                        <th style="width: 35%;">Person</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in mowing_history %}
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 1.1rem;">{{ activity.date }}</td>
+                        <td style="font-weight: bold;">{{ activity.section_name }}</td>
+                        <td style="text-align: center;">
+                            <span class="badge" style="background: var(--brand-color); color: white;">{{ activity.status
+                                }}</span>
+                        </td>
+                        <td class="col-medlem" style="font-size: 1.1rem;">{{ activity.customername }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not mowing_history %}
+                    <tr>
+                        <td colspan="4" class="empty-state">Ingen historik fundet</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="width: 100%; height: 5rem; margin-top: 0.5rem; flex-shrink: 0; position: relative; z-index: 1;">
+            <div style="display: flex; width: 100%; gap: 0.5rem; height: 100%;">
+                <form method="get" action="{{ url_for('mowing.mowing_maintenance') }}" class="util-form"
+                    style="width: 50%;">
+                    <button class="action-btn btn-secondary" type="submit"
+                        style="width: 100%; height: 100%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <span style="font-size: 1.5em; line-height: 1;">🔧</span>
+                        Vedligehold
+                    </button>
+                </form>
+                <form method="get" action="{{ url_for('mowing.register_mowing') }}" class="util-form"
+                    style="width: 50%;">
+                    <button class="action-btn submit-btn" type="submit"
+                        style="width: 100%; height: 100%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <span style="font-size: 1.5em; line-height: 1;">🚜</span>
+                        Registrer klipning
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

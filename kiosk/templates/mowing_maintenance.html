@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}AASvK Greenteam Vedligehold{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<style>
+    .progress-bar-container {
+        width: 100%;
+        height: 1.5rem;
+        background-color: var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-top: 0.25rem;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background-color: var(--brand-color);
+        transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    .progress-bar-fill.warning {
+        background-color: #f59e0b;
+        /* Amber 500 */
+    }
+
+    .progress-bar-fill.danger {
+        background-color: var(--danger-red);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+
+    <!-- Center Pane (Approx 100%) -->
+    <div class="panel info-pane" style="flex: 1; display: flex; flex-direction: column; position: relative;">
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+
+        <div class="brand-header"
+            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">🚜 Maskinvedligehold</h1>
+        </div>
+
+        <div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Opgave</th>
+                        <th style="width: 40%;">Status (timer tilbage)</th>
+                        <th style="width: 20%;">Handling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in maintenance_items %}
+
+                    {# Set styling dynamically based on remaining hours #}
+                    {% set percent_used = (item.used_h / item.interval_h) * 100 %}
+                    {% set percent_remaining = 100 - percent_used %}
+                    {% set percent_remaining = percent_remaining if percent_remaining > 0 else 0 %}
+
+                    {% set progress_class = 'danger' if percent_remaining <= 10 else ('warning' if percent_remaining
+                        <=25 else '' ) %} <tr>
+                        <td style="font-weight: bold; font-size: 1.2rem;">{{ item.maintenance_type }}<br>
+                            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal;">Interval: {{
+                                item.interval_h }} timer</span><br>
+                            {% if item.maintained_by %}
+                            <span
+                                style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal; font-style: italic;">Sidst
+                                udført af: {{ item.maintained_by }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-weight: bold; font-size: 1.1rem; margin-bottom: 0.25rem;">
+                                {{ "%.1f"|format(item.remaining_h) }} / {{ item.interval_h }} timer
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill {{ progress_class }}"
+                                    style="width: {{ percent_remaining }}%;"></div>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <form method="post"
+                                action="{{ url_for('mowing.reset_maintenance', maintenance_id=item.id) }}"
+                                class="util-form" style="height: 100%;">
+                                <button class="action-btn submit-btn" type="button"
+                                    onclick="showDoneModal(this, '{{ item.maintenance_type }}')"
+                                    style="padding: 0.5rem; font-size: 1.2rem; min-height: auto;">Udført ✓</button>
+                            </form>
+                        </td>
+                        </tr>
+                        {% endfor %}
+                        {% if not maintenance_items %}
+                        <tr>
+                            <td colspan="3" class="empty-state">Ingen vedligeholdelsesopgaver fundet</td>
+                        </tr>
+                        {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="width: 100%; height: 5rem; margin-top: auto; flex-shrink: 0; position: relative; z-index: 1;">
+            <form method="get" action="{{ url_for('mowing.mowing_status') }}" class="util-form" style="height: 100%;">
+                <button class="action-btn clear-btn" type="submit" style="font-size: 1.25rem;">Tilbage</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- Action Confirmation Modal -->
+<div id="done-modal"
+    style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div
+        style="background:white; border-radius:16px; padding:2rem 2.5rem; max-width:420px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+        <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#111827;">Markér som udført?</h2>
+        <p id="done-modal-name" style="margin:0 0 2rem 0; font-size:1.15rem; color:#6b7280; font-weight: bold;"></p>
+        <div style="display:flex; gap:1rem;">
+            <button onclick="closeDoneModal()" type="button"
+                style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:2px solid var(--border-color, #e5e7eb); border-radius:10px; background:white; color:var(--text-color); cursor:pointer;">Annuller</button>
+            <button onclick="submitDone()" type="button"
+                style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:none; border-radius:10px; background:var(--brand-color); color:white; cursor:pointer;">Bekræft</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let pendingForm = null;
+
+    function showDoneModal(btn, name) {
+        pendingForm = btn.closest('form');
+        document.getElementById('done-modal-name').textContent = name;
+        document.getElementById('done-modal').style.display = 'flex';
+    }
+
+    function closeDoneModal() {
+        document.getElementById('done-modal').style.display = 'none';
+        pendingForm = null;
+    }
+
+    function submitDone() {
+        if (pendingForm) pendingForm.submit();
+    }
+
+    document.getElementById('done-modal').addEventListener('click', function (e) {
+        if (e.target === this) closeDoneModal();
+    });
+</script>
+{% endblock %}

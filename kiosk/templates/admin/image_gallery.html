@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Billedgalleri{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% endblock %}
+
+{% block content %}
+<div class="app-container" style="justify-content: center;">
+    <div class="panel"
+        style="flex: 1; display: flex; flex-direction: column; height: calc(100vh - 3rem); overflow: hidden; position: relative;">
+
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+
+        <div class="brand-header"
+            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
+            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">🖼️ Billedgalleri</h1>
+        </div>
+
+        <!-- Upload Area -->
+        <form action="{{ url_for('admin.image_upload') }}" method="POST" enctype="multipart/form-data"
+            class="upload-area" style="position: relative; z-index: 1;">
+            <input type="file" name="imagefile" accept="image/*" required>
+            <button type="submit" class="action-btn submit-btn"
+                style="padding: 0.75rem 2rem; font-size: 1.1rem; height: auto; white-space: nowrap;">Upload</button>
+        </form>
+
+        <!-- Scrollable Gallery Grid -->
+        <div style="flex: 1; min-height: 0; overflow-y: auto; position: relative; z-index: 1; margin-bottom: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
+                {% for image in images %}
+                <div class="gallery-card">
+                    <div class="gallery-thumb">
+                        <img src="{{ url_for('static', filename='images/' + image) }}">
+                    </div>
+                    <div class="gallery-name">{{ image }}</div>
+                    <form action="{{ url_for('admin.image_delete', filename=image) }}" method="POST">
+                        <button type="button" class="delete-btn"
+                            onclick="showDeleteModal(this, '{{ image }}')">Slet</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bottom Action Row -->
+        <div style="display: flex; gap: 1rem; height: 4.5rem; flex-shrink: 0; position: relative; z-index: 1;">
+            <a href="{{ url_for('admin.product_list') }}"
+                style="text-decoration: none; display: block; height: 100%; flex: 1;">
+                <button class="action-btn clear-btn" type="button"
+                    style="width: 100%; height: 100%; font-size: 1.3rem;">Tilbage til Produkter</button>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal"
+    style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div
+        style="background:white; border-radius:16px; padding:2rem 2.5rem; max-width:420px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+        <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#111827;">Slet billede?</h2>
+        <p id="delete-modal-name" style="margin:0 0 2rem 0; font-size:1.15rem; color:#6b7280; word-break:break-all;">
+        </p>
+        <div style="display:flex; gap:1rem;">
+            <button onclick="closeDeleteModal()" type="button"
+                style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:2px solid var(--border-color, #e5e7eb); border-radius:10px; background:white; color:var(--text-color); cursor:pointer;">Annuller</button>
+            <button onclick="submitDelete()" type="button"
+                style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:none; border-radius:10px; background:#dc2626; color:white; cursor:pointer;">Ja,
+                slet</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let pendingForm = null;
+
+    function showDeleteModal(btn, filename) {
+        pendingForm = btn.closest('form');
+        document.getElementById('delete-modal-name').textContent = filename;
+        const modal = document.getElementById('delete-modal');
+        modal.style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-modal').style.display = 'none';
+        pendingForm = null;
+    }
+
+    function submitDelete() {
+        if (pendingForm) {
+            pendingForm.submit();
+        }
+    }
+
+    // Close modal if clicking the backdrop
+    document.getElementById('delete-modal').addEventListener('click', function (e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+{% endblock %}

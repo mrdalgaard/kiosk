@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+    <defs>
+        <!-- Gradients -->
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3B82F6"/>
+            <stop offset="60%" stop-color="#7DD3FC"/>
+            <stop offset="100%" stop-color="#E0F2FE"/>
+        </linearGradient>
+        
+        <radialGradient id="roomShadow" cx="50%" cy="50%" r="75%">
+            <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.15"/>
+        </radialGradient>
+
+        <linearGradient id="fridgeGlass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+            <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.0"/>
+            <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0"/>
+        </linearGradient>
+
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="6" flood-opacity="0.2" />
+        </filter>
+
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+
+        <!-- Kiosk Goods (Club Fridge Items) -->
+        <g id="beer">
+            <path d="M 5,40 L 5,15 C 5,10 7,10 7,5 L 7,0 L 11,0 L 11,5 C 11,10 13,10 13,15 L 13,40 Z" fill="#2A9D8F"/>
+            <rect x="5" y="20" width="8" height="12" fill="#F1FAEE"/>
+            <rect x="6.5" y="0" width="5" height="3" fill="#E9C46A" rx="1"/>
+            <path d="M 7,18 L 7,35" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+        </g>
+
+        <g id="soda">
+            <rect x="0" y="0" width="16" height="26" rx="2" fill="#E63946"/>
+            <rect x="1" y="0" width="14" height="2" fill="#D1D5DB"/>
+            <rect x="1" y="24" width="14" height="2" fill="#D1D5DB"/>
+            <path d="M 0,10 Q 8,5 16,13 L 16,16 Q 8,8 0,16 Z" fill="#FFFFFF"/>
+            <path d="M 3,4 L 3,22" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+        </g>
+
+        <g id="toast">
+            <polygon points="0,28 0,0 28,28" fill="#F8F9FA" stroke="#8CB369" stroke-width="1.5" stroke-linejoin="round"/>
+            <polygon points="3,25 3,8 20,25" fill="#E9C46A"/>
+            <line x1="3" y1="14" x2="14" y2="25" stroke="#E63946" stroke-width="1.5"/>
+            <line x1="3" y1="18" x2="10" y2="25" stroke="#2A9D8F" stroke-width="1.5"/>
+        </g>
+
+        <g id="candy">
+            <rect x="0" y="0" width="28" height="8" rx="1.5" fill="#2B2D42"/>
+            <rect x="3" y="1.5" width="22" height="5" fill="#F4A261" rx="1"/>
+            <text x="14" y="6" font-family="system-ui, sans-serif" font-size="4" font-weight="bold" fill="#2B2D42" text-anchor="middle">CHOC</text>
+        </g>
+
+        <g id="pizza">
+            <rect x="0" y="0" width="90" height="10" fill="#F8F9FA" rx="1" stroke="#D1D5DB" stroke-width="1.5"/>
+            <rect x="0" y="-10" width="90" height="10" fill="#F8F9FA" rx="1" stroke="#D1D5DB" stroke-width="1.5"/>
+            <circle cx="45" cy="-5" r="4" fill="#E63946"/>
+            <rect x="41" y="-6" width="8" height="2" fill="#FFFFFF"/>
+        </g>
+
+        <!-- Glider Object -->
+        <g id="glider">
+            <!-- Fuselage -->
+            <path d="M 28,-2 C 15,-7 5,-7 -5,-3 C -20,-1 -35,-2 -40,-4 L -43,-16 L -37,-16 L -33,-4 C -15,1 5,3 28,-2 Z" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1"/>
+            <!-- Canopy -->
+            <path d="M 18,-3 C 10,-7 3,-6 -2,-3 C 5,-1 12,-1 18,-3 Z" fill="#38BDF8"/>
+            <!-- Wing -->
+            <path d="M -2,-4 L -15,-25 L -7,-25 L 3,-4 Z" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="0.5"/>
+            <!-- T-Tail Horizontal Stabilizer -->
+            <path d="M -45,-16 L -30,-16 L -32,-14 L -43,-14 Z" fill="#FFFFFF"/>
+            <!-- Main Wheel -->
+            <circle cx="0" cy="0" r="2" fill="#111827" />
+            <!-- Tail Wheel -->
+            <circle cx="-38" cy="-2" r="1.5" fill="#111827" />
+        </g>
+
+        <!-- Window Clip Path -->
+        <clipPath id="window-clip">
+            <rect x="340" y="80" width="420" height="420" rx="8" />
+        </clipPath>
+    </defs>
+
+    <!-- === CLUB ROOM BACKGROUND === -->
+    <!-- Wall -->
+    <rect width="800" height="550" fill="#F9FAFB"/>
+    <!-- Baseboard -->
+    <rect x="0" y="540" width="800" height="10" fill="#D1D5DB"/>
+    <!-- Floor -->
+    <rect x="0" y="550" width="800" height="50" fill="#E5E7EB"/>
+    <!-- Floor shadow under fridge -->
+    <ellipse cx="170" cy="555" rx="130" ry="8" fill="#000000" opacity="0.2"/>
+
+    <!-- Room Shadow / Vignette -->
+    <rect width="800" height="600" fill="url(#roomShadow)" pointer-events="none"/>
+
+    <!-- === AIRFIELD WINDOW VIEW === -->
+    <!-- Window Frame Outer Drop Shadow -->
+    <rect x="335" y="75" width="430" height="430" rx="12" fill="#000000" opacity="0.1" filter="url(#shadow)"/>
+    
+    <g clip-path="url(#window-clip)">
+        <!-- Sky -->
+        <rect x="340" y="80" width="420" height="420" fill="url(#skyGrad)" />
+        
+        <!-- Sun -->
+        <circle cx="680" cy="160" r="35" fill="#FDE047" opacity="0.9" filter="url(#glow)"/>
+        
+        <!-- Clouds -->
+        <path d="M 380,180 Q 400,160 420,180 Q 450,150 480,180 Q 510,170 520,190 L 380,190 Z" fill="#FFFFFF" opacity="0.8"/>
+        <path d="M 600,240 Q 620,220 640,240 Q 660,210 680,240 Q 700,230 710,250 L 600,250 Z" fill="#FFFFFF" opacity="0.6"/>
+        
+        <!-- Tree line background -->
+        <path d="M 340,435 Q 380,425 420,435 T 500,430 T 580,438 T 660,432 T 760,435 L 760,445 L 340,445 Z" fill="#14532D" opacity="0.8"/>
+
+        <!-- Grass Field -->
+        <rect x="340" y="445" width="420" height="55" fill="#84CC16" />
+        
+        <!-- Windsock (Blowing from right to left, matching takeoff direction) -->
+        <rect x="680" y="400" width="3" height="45" fill="#9CA3AF" />
+        <path d="M 681.5,405 L 648,410 L 648,420 L 681.5,425 Z" fill="#EF4444" />
+        <path d="M 670,406.5 L 661,408 L 661,421.5 L 670,423 Z" fill="#FFFFFF" />
+
+        <!-- Glider Launch Animation -->
+        <g>
+            <!-- Wire Group (Behind Glider, flawlessly tracks glider but maintains orientation to the fixed winch on ground) -->
+            <g>
+                <!-- This group translates identically with the glider, but does NOT rotate automatically -->
+                <animateMotion 
+                    path="M 200 445 L 450 445 C 500 445, 540 403, 590 361 L 1000 18" 
+                    begin="0.0s" 
+                    dur="3.0s" 
+                    fill="freeze" 
+                    calcMode="spline" 
+                    keyTimes="0; 1" 
+                    keySplines="0.4 0 0.8 1" />
+                
+                <g transform="translate(0, 2)">
+                    <!-- Counter-rotation strictly calibrated to keep the right end of the wire locked on (1500, 445) as it climbs -->
+                    <animateTransform 
+                        attributeName="transform" 
+                        type="rotate" 
+                        values="0; 0; 5.2; 20.3; 34.1; 40.5" 
+                        keyTimes="0; 0.4; 0.53; 0.73; 0.88; 1" 
+                        begin="0.0s" dur="3.0s" fill="freeze" 
+                        additive="sum" />
+                    
+                    <!-- Steel Winch Cable extending to fixed ground point out of frame -->
+                    <line x1="0" y1="0" x2="1500" y2="0" stroke="#6B7280" stroke-width="1.5" />
+                    
+                    <!-- Collapsed Winch Parachute (Tensioned by air resistance) -->
+                    <polygon points="10,-2 25,-3 25,3 10,2" fill="#EF4444"/>
+                    <polygon points="18,-2.5 25,-3 25,3 18,2.5" fill="#FFFFFF"/>
+                    <!-- Tow ring -->
+                    <circle cx="2" cy="0" r="1.5" fill="none" stroke="#4B5563" stroke-width="1"/>
+                </g>
+            </g>
+
+            <!-- Glider Itself (Rotates to align with climb angle) -->
+            <g>
+                <animateMotion 
+                    path="M 200 445 L 450 445 C 500 445, 540 403, 590 361 L 1000 18" 
+                    begin="0.0s" 
+                    dur="3.0s" 
+                    fill="freeze" 
+                    rotate="auto" 
+                    calcMode="spline" 
+                    keyTimes="0; 1" 
+                    keySplines="0.4 0 0.8 1" />
+                
+                <use href="#glider" />
+            </g>
+        </g>
+    </g>
+
+    <!-- Window Frame Inner/Border -->
+    <rect x="340" y="80" width="420" height="420" rx="8" fill="none" stroke="#4B5563" stroke-width="12" />
+    <rect x="346" y="86" width="408" height="408" rx="4" fill="none" stroke="#1F2937" stroke-width="2" />
+
+    <!-- === AASvK KIOSK (FRIDGE) === -->
+    <!-- Fridge Body -->
+    <rect x="40" y="80" width="260" height="470" rx="8" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="4" filter="url(#shadow)"/>
+    
+    <!-- Fridge Top Header -->
+    <path d="M 42,88 Q 42,82 48,82 L 292,82 Q 298,82 298,88 L 298,140 L 42,140 Z" fill="#2563EB"/>
+    <text x="170" y="115" font-family="'Courier New', Courier, monospace" font-size="34" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">AASvK</text>
+    <text x="170" y="132" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#93C5FD" text-anchor="middle" letter-spacing="4">KIOSK</text>
+
+    <!-- Fridge Interior Background -->
+    <rect x="50" y="150" width="240" height="360" fill="#111827"/>
+
+    <!-- Fridge Shelves & Goods -->
+    <g id="fridge-contents">
+        <!-- Shelf 1 (Drinks) -->
+        <rect x="50" y="230" width="240" height="6" fill="#374151"/>
+        <!-- Beers -->
+        <use href="#beer" x="65" y="190"/>
+        <use href="#beer" x="90" y="190"/>
+        <use href="#beer" x="115" y="190"/>
+        <!-- Sodas -->
+        <use href="#soda" x="160" y="204"/>
+        <use href="#soda" x="185" y="204"/>
+        <use href="#soda" x="210" y="204"/>
+        <use href="#soda" x="235" y="204"/>
+
+        <!-- Shelf 2 (Toast Sandwiches) -->
+        <rect x="50" y="320" width="240" height="6" fill="#374151"/>
+        <use href="#toast" x="65" y="292"/>
+        <use href="#toast" x="105" y="292"/>
+        <use href="#toast" x="145" y="292"/>
+        <use href="#toast" x="185" y="292"/>
+        <use href="#toast" x="225" y="292"/>
+
+        <!-- Shelf 3 (Candy) -->
+        <rect x="50" y="410" width="240" height="6" fill="#374151"/>
+        <!-- Candy Display Box -->
+        <rect x="70" y="390" width="160" height="20" fill="#E63946" rx="2"/>
+        <text x="150" y="404" font-family="system-ui, sans-serif" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">SNACKS</text>
+        <g transform="translate(80, 382)"><use href="#candy"/></g>
+        <g transform="translate(115, 382)"><use href="#candy"/></g>
+        <g transform="translate(150, 382)"><use href="#candy"/></g>
+        <g transform="translate(185, 382)"><use href="#candy"/></g>
+
+        <!-- Shelf 4 / Bottom (Pizzas) -->
+        <rect x="50" y="500" width="240" height="6" fill="#374151"/>
+        <use href="#pizza" x="125" y="490"/>
+        <use href="#pizza" x="125" y="478"/>
+        <use href="#pizza" x="125" y="466"/>
+        <use href="#pizza" x="125" y="454"/>
+    </g>
+
+    <!-- Fridge Glass & Reflections -->
+    <rect x="50" y="150" width="240" height="360" fill="url(#fridgeGlass)" pointer-events="none"/>
+    <!-- Diagonal Reflection -->
+    <polygon points="50,150 140,150 50,280" fill="#FFFFFF" opacity="0.1" pointer-events="none"/>
+    <polygon points="290,510 200,510 290,380" fill="#FFFFFF" opacity="0.05" pointer-events="none"/>
+
+    <!-- Fridge Door Details (Double Doors) -->
+    <line x1="170" y1="150" x2="170" y2="510" stroke="#4B5563" stroke-width="2"/>
+    <rect x="50" y="150" width="240" height="360" fill="none" stroke="#9CA3AF" stroke-width="2"/>
+    
+    <!-- Door Handles -->
+    <rect x="156" y="300" width="6" height="60" rx="3" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="1"/>
+    <rect x="178" y="300" width="6" height="60" rx="3" fill="#D1D5DB" stroke="#9CA3AF" stroke-width="1"/>
+
+    <!-- Fridge Bottom Grill -->
+    <rect x="50" y="515" width="240" height="25" fill="#374151" rx="2"/>
+    <line x1="60" y1="522" x2="280" y2="522" stroke="#1F2937" stroke-width="3" stroke-linecap="round"/>
+    <line x1="60" y1="532" x2="280" y2="532" stroke="#1F2937" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- === SUCCESS POPUP ("Tak for købet") === -->
+    <g transform="translate(400, 290)">
+        <g opacity="0">
+            <!-- Fade in and scale pop animation -->
+            <animate attributeName="opacity" values="0;1" begin="2.0s" dur="0.4s" fill="freeze" />
+            <animateTransform attributeName="transform" type="scale" values="0.5; 1.05; 1" keyTimes="0; 0.7; 1" begin="2.0s" dur="0.4s" calcMode="spline" keySplines="0.2 0 0.4 1; 0.2 0 0.4 1" fill="freeze" />
+            
+            <!-- Shadow -->
+            <rect x="-160" y="-60" width="320" height="120" rx="16" fill="#000000" opacity="0.15" filter="url(#shadow)" />
+            
+            <!-- Card Body -->
+            <rect x="-160" y="-60" width="320" height="120" rx="16" fill="#FFFFFF" stroke="#38BDF8" stroke-width="4"/>
+            
+            <!-- Checkmark / Glider Icon Background -->
+            <circle cx="0" cy="-60" r="30" fill="#10B981" stroke="#FFFFFF" stroke-width="6"/>
+            <!-- Checkmark Path -->
+            <path d="M -12,-60 L -4,-52 L 14,-70" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            
+            <!-- Texts -->
+            <text x="0" y="10" font-family="system-ui, sans-serif" font-size="30" font-weight="900" fill="#1E293B" text-anchor="middle">Tak for købet</text>
+            <text x="0" y="38" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#64748B" text-anchor="middle">Nyd din snack på flyvepladsen!</text>
+        </g>
+    </g>
+
+</svg>

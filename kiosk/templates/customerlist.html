@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Medlemsliste{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-container" style="justify-content: center;">
+    <div class="panel"
+        style="flex: 1; max-width: 600px; display: flex; flex-direction: column; height: calc(100vh - 3rem); overflow: hidden; position: relative; margin: 0 auto;">
+
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 400px;" alt="AaSvK Logo">
+
+        <div class="brand-header"
+            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.3rem; margin-bottom: 0.5rem; position: relative; z-index: 1; flex-shrink: 0;">
+            <h1 style="color: var(--brand-color); font-size: 1.6rem; margin: 0;">👥 Medlemsliste</h1>
+        </div>
+
+        <!-- Scrollable table -->
+        <div
+            style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; position: relative; z-index: 1;">
+            <table class="data-table" style="margin: 0;">
+                <thead style="position: sticky; top: 0; z-index: 2; background: white;">
+                    <tr>
+                        <th>Navn</th>
+                        <th style="width: 140px;">Medlemsnr.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in customerList %}
+                    <tr>
+                        <td style="font-weight: bold; font-size: 1.05rem;">{{ item["customername"] }}</td>
+                        <td>{{ item["customerid"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bottom Action Row -->
+        <div style="display: flex; gap: 1rem; height: 3.5rem; flex-shrink: 0; position: relative; z-index: 1;">
+            <a href="{{ url_for('auth.login') }}" style="text-decoration: none; display: block; height: 100%; flex: 1;">
+                <button class="action-btn clear-btn" type="button"
+                    style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">← Tilbage</button>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

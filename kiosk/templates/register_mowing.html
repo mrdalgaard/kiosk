@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}AASvK Greenteam{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<style>
+    /* Viewport lock to prevent any unwanted scrolling on tablet */
+    html,
+    body {
+        height: 100vh !important;
+        overflow: hidden !important;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* Modern form control styles */
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1.25rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        background-color: white;
+        color: var(--text-color, #111827);
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--brand-color);
+    }
+
+    select.form-control option {
+        color: var(--text-color, #111827);
+        background-color: white;
+        font-size: 1.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-container" style="justify-content: center;">
+
+    <!-- Single Main Panel -->
+    <div class="panel interaction-pane"
+        style="flex: 1; max-width: 900px; display: flex; flex-direction: column; position: relative; margin: 0 auto; height: calc(100vh - 3rem); overflow: hidden;">
+
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+
+        <div class="brand-header"
+            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
+            <h1
+                style="color: var(--brand-color); font-size: 2rem; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.25em; line-height: 1;">🚜</span>
+                Registrer klipning
+            </h1>
+        </div>
+
+        <form action="{{ url_for('mowing.register_mowing') }}" method="post"
+            style="display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;">
+
+            <!-- Date Picker Section -->
+            <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
+                <h3 style="margin: 0; font-size: 1.5rem; color: var(--text-color);">Dato:</h3>
+                <input type="date" id="date" name="date" class="form-control" max="{{ today_date }}"
+                    style="width: auto; flex: 1; max-width: 300px;" required>
+            </div>
+
+            <!-- Scrollable table area -->
+            <div
+                style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px;">
+                <table class="data-table" style="margin: 0;">
+                    <thead style="position: sticky; top: 0; z-index: 2; background: white;">
+                        <tr>
+                            <th style="width: 50%;">Sektion</th>
+                            <th style="width: 50%;">Klipningsgrad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for section in sections %}
+                        <tr>
+                            <td style="font-weight: bold; font-size: 1.25rem;">{{ section.section_name }}</td>
+                            <td>
+                                <select name="status_{{ section.id }}" class="form-control"
+                                    style="font-size: 1.1rem; padding: 0.5rem;">
+                                    <option value="NotMowed">Ikke klippet</option>
+                                    <option value="1/8">1/8 klippet</option>
+                                    <option value="2/8">2/8 klippet</option>
+                                    <option value="3/8">3/8 klippet</option>
+                                    <option value="4/8">4/8 klippet</option>
+                                    <option value="5/8">5/8 klippet</option>
+                                    <option value="6/8">6/8 klippet</option>
+                                    <option value="7/8">7/8 klippet</option>
+                                    <option value="8/8" style="font-weight: bold; color: var(--brand-color);">Helt
+                                        klippet</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bottom Action Row - always visible -->
+            <div style="display: flex; gap: 1rem; height: 5rem; flex-shrink: 0;">
+                <div style="flex: 1;">
+                    <a href="{{ url_for('mowing.mowing_status') }}"
+                        style="text-decoration: none; display: block; height: 100%;">
+                        <button class="action-btn clear-btn" type="button"
+                            style="width: 100%; height: 100%; font-size: 1.5rem;">Tilbage</button>
+                    </a>
+                </div>
+                <div style="flex: 2;">
+                    <button class="action-btn submit-btn" type="submit"
+                        style="width: 100%; height: 100%; font-size: 1.75rem;">🚜 Gem Klipning</button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+
+# Docker
+compose.yaml
+
+# Images
+data/images/*
+
+.agent/

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% endblock %}
+
+{% block content %}
+<div class="app-container" style="justify-content: center; align-items: center;">
+    <div class="panel interaction-pane" style="max-width: 500px; width: 100%; position: relative;">
+
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 350px;" alt="AaSvK Logo">
+
+        <div class="brand-header" style="position: relative; z-index: 1;">
+            <h1>🔒 Admin Login</h1>
+            <h2>Indtast PIN kode</h2>
+        </div>
+
+        <div class="pin-display-wrapper">
+            <div id="pin-display" class="pin-display-fluid" style="letter-spacing: 0.5rem;"></div>
+        </div>
+
+        {% if error %}
+        <script>document.addEventListener('DOMContentLoaded', function () { showToast('{{ error }}', 'error'); });</script>
+        {% endif %}
+
+        <div class="keypad-grid">
+            <div class="key-card" onclick="updatePin('1')"><span class="key-num">1</span></div>
+            <div class="key-card" onclick="updatePin('2')"><span class="key-num">2</span></div>
+            <div class="key-card" onclick="updatePin('3')"><span class="key-num">3</span></div>
+
+            <div class="key-card" onclick="updatePin('4')"><span class="key-num">4</span></div>
+            <div class="key-card" onclick="updatePin('5')"><span class="key-num">5</span></div>
+            <div class="key-card" onclick="updatePin('6')"><span class="key-num">6</span></div>
+
+            <div class="key-card" onclick="updatePin('7')"><span class="key-num">7</span></div>
+            <div class="key-card" onclick="updatePin('8')"><span class="key-num">8</span></div>
+            <div class="key-card" onclick="updatePin('9')"><span class="key-num">9</span></div>
+
+            <div class="key-card clear-btn" onclick="clearPin()">
+                <span class="key-text">Slet</span>
+            </div>
+            <div class="key-card" onclick="updatePin('0')"><span class="key-num">0</span></div>
+            <div class="key-card submit-btn" onclick="document.getElementById('admin-login-form').submit()">
+                <span class="key-text">Log ind</span>
+            </div>
+        </div>
+
+        <!-- Hidden form for actual submission -->
+        <form id="admin-login-form" method="POST" style="display: none;" autocomplete="off">
+            <input type="password" id="pin" name="pin" autocomplete="new-password" required />
+        </form>
+
+        <div class="utility-actions" style="position: relative; z-index: 1;">
+            <form method="get" action="{{ url_for('main.index') }}" class="util-form">
+                <button class="action-btn btn-secondary" type="submit">Annuller</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updatePin(digit) {
+        const input = document.getElementById('pin');
+        const display = document.getElementById('pin-display');
+        input.value += digit;
+        // Show dots for security
+        display.innerText = '●'.repeat(input.value.length);
+    }
+    function clearPin() {
+        document.getElementById('pin').value = '';
+        document.getElementById('pin-display').innerText = '';
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key >= '0' && e.key <= '9') {
+            updatePin(e.key);
+        } else if (e.key === 'Backspace') {
+            const input = document.getElementById('pin');
+            input.value = input.value.slice(0, -1);
+            document.getElementById('pin-display').innerText = '●'.repeat(input.value.length);
+        } else if (e.key === 'Enter') {
+            document.getElementById('admin-login-form').submit();
+        }
+    });
+</script>
+{% endblock %}

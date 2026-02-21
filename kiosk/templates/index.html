@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}AASvK kantine{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+
+    <!-- Left Column: Products Pane (Approx 65%) -->
+    <div class="panel interaction-pane" style="flex: 1.5; display: flex; flex-direction: column;">
+        <div class="brand-header"
+            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">Velkommen {{ customername }}</h1>
+        </div>
+
+        {% if error %}
+        <script>document.addEventListener('DOMContentLoaded', function () { showToast('{{ error }}', 'error'); });</script>
+        {% endif %}
+
+        <div class="product-grid">
+            {% for product in products %}
+            <a href="{{ url_for('main.add_to_cart', productid=product.productid) }}" class="product-card">
+                <img src="{{ url_for('static', filename='images/' + product.imagefilename) }}" class="product-image">
+                <span class="product-name">{{ product.productname }}</span>
+                <span class="product-price">{{ product.itemprice }}kr</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Right Column: Cart & Info Pane (Approx 35%) -->
+    <div class="panel info-pane" style="flex: 0.85; display: flex; flex-direction: column; position: relative;">
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" alt="AaSvK Logo">
+
+        <div class="info-header" style="position: relative; z-index: 1;">
+            {% if greenteam %}
+            <div style="width: 100%; height: 4.5rem; margin-bottom: 1rem;">
+                <form method="get" action="{{ url_for('mowing.mowing_status') }}" class="util-form"
+                    style="width: 100%; height: 100%;">
+                    <button class="action-btn btn-secondary" type="submit"
+                        style="width: 100%; height: 100%; font-size: 1.25rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <span style="font-size: 1.5em; line-height: 1;">🚜</span>
+                        Græsslåning
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            <h3>Kurv</h3>
+        </div>
+
+        <div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Vare</th>
+                        <th class="col-antal" style="width: 20%; padding-right: 1.25rem;">Antal</th>
+                        <th style="width: 25%; text-align: right;">Pris</th>
+                        <th style="width: 10%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item, detail in cart.items() %}
+                    <tr>
+                        <td style="font-weight: bold;">{{ detail["productname"] }}</td>
+                        <td class="col-antal">
+                            <span class="badge" style="padding-right: 0.75rem;">{{ detail["quantity"] }}</span>
+                        </td>
+                        <td style="text-align: right; font-weight: bold;">{{ "{:,.2f}".format(detail["quantity"] *
+                            detail["itemprice"] | float) }}kr</td>
+                        <td style="text-align: center; padding: 0.25rem;">
+                            <a href="{{ url_for('main.remove_from_cart', productid=item) }}"
+                                style="color: var(--danger-red); text-decoration: none; font-size: 2.25rem; font-weight: bold; line-height: 1; display: inline-block;">&times;</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not cart %}
+                    <tr>
+                        <td colspan="4" class="empty-state">Ingen varer i kurven</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="utility-actions"
+            style="position: relative; z-index: 1; flex-shrink: 0; margin-bottom: 1rem; flex-wrap: wrap; height: auto; gap: 0.5rem;">
+            <div style="display: flex; width: 100%; gap: 0.5rem; height: 4.5rem;">
+                <form method="post" action="{{ url_for('auth.logout') }}" class="util-form">
+                    <button class="action-btn clear-btn" type="submit">Annuller</button>
+                </form>
+                {% if is_admin() %}
+                <form method="get" action="{{ url_for('admin.login') }}" class="util-form">
+                    <button class="action-btn btn-secondary" type="submit">Admin</button>
+                </form>
+                {% endif %}
+                <form method="get" action="{{ url_for('main.history') }}" class="util-form">
+                    <button class="action-btn btn-secondary" type="submit">Historik</button>
+                </form>
+            </div>
+            <div style="width: 100%; height: 5rem; margin-top: 0.5rem;">
+                <form method="post" action="{{ url_for('main.checkout') }}" class="util-form" style="height: 100%;">
+                    <button class="action-btn submit-btn" {% if not cart %} type="button"
+                        onclick="showToast('Kurven er tom', 'error');" {% else %} type="submit"
+                        onClick="this.form.submit(); this.disabled=true;" {% endif %}
+                        style="font-size: 1.75rem;">Køb</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
