@@ -92,8 +92,10 @@ def test_mowing_status(logged_in_client):
         history = [{'date': '21/02/2026', 'customername': 'Test User', 'section_name': 'Hul 1', 'status': 'Mowed'}]
         # mock second query (last_mowed)
         last_mowed = [{'days': 2, 'customername': 'Test User', 'section_name': 'Hul 1'}]
+        # mock third query (maintenance)
+        maintenance = [{'id': 1, 'maintenance_type': 'Test Maintenance', 'interval_h': 100, 'used_h': 110.0}]
         
-        mock_curs.fetchall.side_effect = [history, last_mowed]
+        mock_curs.fetchall.side_effect = [history, last_mowed, maintenance]
 
         response = logged_in_client.get('/mowing_status')
         assert response.status_code == 200

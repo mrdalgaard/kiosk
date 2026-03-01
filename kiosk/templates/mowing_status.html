@@ -16,6 +16,22 @@
             <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">AASvK Greenteam</h1>
         </div>
 
+        {% if overdue_maintenance %}
+        <div
+            style="background-color: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; flex-shrink: 0;">
+            <div
+                style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>⚠️</span> Maskinvedligehold påkrævet
+            </div>
+            <ul style="margin: 0; padding-left: 1.5rem; font-size: 1.1rem; line-height: 1.4;">
+                {% for item in overdue_maintenance %}
+                <li><strong>{{ item.maintenance_type }}</strong> er overskredet ({{ "%.1f"|format(item.remaining_h|abs)
+                    }} timer over)</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <div class="info-header" style="position: relative; z-index: 1;">
             <h3>Dage siden sidste klipning</h3>
         </div>

@@ -42,6 +42,31 @@ def register_mowing():
     
     return render_template('register_mowing.html', sections=sections, today_date=today_date)
 
+def get_maintenance_items(curs):
+    curs.execute("""
+        SELECT 
+            m.id, 
+            m.maintenance_type, 
+            m.interval_h, 
+            m.last_maintained_timestamp,
+            c.customername as maintained_by,
+            COALESCE(SUM(
+                s.cutting_time_in_h * 
+                CAST(SPLIT_PART(a.status, '/', 1) AS FLOAT) / 
+                CAST(COALESCE(NULLIF(SPLIT_PART(a.status, '/', 2), ''), '8') AS FLOAT)
+            ), 0) as used_h
+        FROM mowingmaintenance m
+        LEFT JOIN mowingactivities a ON a.timestamp > m.last_maintained_timestamp
+        LEFT JOIN mowingsections s ON a.section_id = s.id AND a.status != 'NotMowed'
+        LEFT JOIN customers c ON m.user_id = c.customerid
+        GROUP BY m.id, m.maintenance_type, m.interval_h, m.last_maintained_timestamp, c.customername
+        ORDER BY m.id
+    """)
+    items = curs.fetchall()
+    for item in items:
+        item['remaining_h'] = item['interval_h'] - item['used_h']
+    return items
+
 
 @bp.route('/mowing_status')
 @login_required
@@ -69,38 +94,18 @@ def mowing_status():
                 ORDER BY days DESC
             """,)
             last_mowed = curs.fetchall()
+            
+            maintenance_items = get_maintenance_items(curs)
+            overdue_maintenance = [item for item in maintenance_items if item['remaining_h'] <= 0]
 
-    return render_template('mowing_status.html', mowing_history=mowing_history, last_mowed=last_mowed)
+    return render_template('mowing_status.html', mowing_history=mowing_history, last_mowed=last_mowed, overdue_maintenance=overdue_maintenance)
 
 @bp.route('/mowing_maintenance')
 @login_required
 def mowing_maintenance():
     with get_db_connection() as conn:
         with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
-            curs.execute("""
-                SELECT 
-                    m.id, 
-                    m.maintenance_type, 
-                    m.interval_h, 
-                    m.last_maintained_timestamp,
-                    c.customername as maintained_by,
-                    COALESCE(SUM(
-                        s.cutting_time_in_h * 
-                        CAST(SPLIT_PART(a.status, '/', 1) AS FLOAT) / 
-                        CAST(COALESCE(NULLIF(SPLIT_PART(a.status, '/', 2), ''), '8') AS FLOAT)
-                    ), 0) as used_h
-                FROM mowingmaintenance m
-                LEFT JOIN mowingactivities a ON a.timestamp > m.last_maintained_timestamp
-                LEFT JOIN mowingsections s ON a.section_id = s.id AND a.status != 'NotMowed'
-                LEFT JOIN customers c ON m.user_id = c.customerid
-                GROUP BY m.id, m.maintenance_type, m.interval_h, m.last_maintained_timestamp, c.customername
-                ORDER BY m.id
-            """)
-            maintenance_items = curs.fetchall()
-            
-            # Calculate remaining hours dynamically without bottom cap
-            for item in maintenance_items:
-                item['remaining_h'] = item['interval_h'] - item['used_h']
+            maintenance_items = get_maintenance_items(curs)
 
     return render_template('mowing_maintenance.html', maintenance_items=maintenance_items)
 
