@@ -24,4 +24,4 @@ USER appuser
 
 EXPOSE 5000
 
-CMD ["gunicorn", "--worker-class", "gthread", "--threads", "2", "--timeout", "60", "--bind", "0.0.0.0:5000", "--access-logfile", "-", "app:app"]
+CMD ["gunicorn", "--worker-class", "gthread", "--threads", "2", "--timeout", "60", "--bind", "0.0.0.0:5000", "--logger-class", "gunicorn_logger.IgnoreHealthCheckLogger", "--access-logfile", "-", "--access-logformat", "%({x-forwarded-for}i)s %(t)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\"", "app:app"]
