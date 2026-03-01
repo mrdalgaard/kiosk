@@ -16,4 +16,4 @@ compose.yaml
 # Images
 data/images/*
 
-.agents/
+.agents/venv/
