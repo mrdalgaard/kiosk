@@ -356,3 +356,73 @@ def test_product_edit_db_error_post(logged_in_client):
         response = logged_in_client.post('/admin/products/1/edit', data=data)
         assert response.status_code == 200
         assert b'Fejl ved gemning' in response.data
+
+def test_mowing_user_list(logged_in_client):
+    """Test loading Greenteam user list."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        # Two queries executed: mowing users, then available customers
+        mock_curs.fetchall.side_effect = [
+            [{'customerid': 1, 'customername': 'Mowing User 1'}],
+            [{'customerid': 2, 'customername': 'Available User 2'}]
+        ]
+        
+        response = logged_in_client.get('/admin/greenteam')
+        assert response.status_code == 200
+        assert b'Mowing User 1' in response.data
+        assert b'Available User 2' in response.data
+
+def test_mowing_user_add(logged_in_client):
+    """Test adding a Greenteam user."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        data = {'customerid': '2'}
+        response = logged_in_client.post('/admin/greenteam/add', data=data)
+        
+        assert response.status_code == 302
+        assert '/admin/greenteam' in response.headers['Location']
+        
+        assert mock_curs.execute.call_count == 1
+        assert "INSERT INTO mowingusers" in mock_curs.execute.call_args[0][0]
+
+def test_mowing_user_delete(logged_in_client):
+    """Test removing a Greenteam user."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        response = logged_in_client.post('/admin/greenteam/1/delete')
+        
+        assert response.status_code == 302
+        assert '/admin/greenteam' in response.headers['Location']
+        
+        assert mock_curs.execute.call_count == 1
+        assert "DELETE FROM mowingusers" in mock_curs.execute.call_args[0][0]
