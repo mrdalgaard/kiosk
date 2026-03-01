@@ -108,43 +108,6 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="delete-modal"
-    style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-    <div
-        style="background:white; border-radius:16px; padding:2rem 2.5rem; max-width:420px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
-        <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#111827;">Slet produkt?</h2>
-        <p id="delete-modal-name" style="margin:0 0 2rem 0; font-size:1.15rem; color:#6b7280;"></p>
-        <div style="display:flex; gap:1rem;">
-            <button onclick="closeDeleteModal()" type="button"
-                style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:2px solid var(--border-color, #e5e7eb); border-radius:10px; background:white; color:var(--text-color); cursor:pointer;">Annuller</button>
-            <button onclick="submitDelete()" type="button"
-                style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:none; border-radius:10px; background:#dc2626; color:white; cursor:pointer;">Ja,
-                slet</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    let pendingForm = null;
-
-    function showDeleteModal(btn, name) {
-        pendingForm = btn.closest('form');
-        document.getElementById('delete-modal-name').textContent = name;
-        document.getElementById('delete-modal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('delete-modal').style.display = 'none';
-        pendingForm = null;
-    }
-
-    function submitDelete() {
-        if (pendingForm) pendingForm.submit();
-    }
-
-    document.getElementById('delete-modal').addEventListener('click', function (e) {
-        if (e.target === this) closeDeleteModal();
-    });
-</script>
+{% from "admin/components/_delete_modal.html" import render_delete_modal %}
+{{ render_delete_modal("Slet produkt?") }}
 {% endblock %}
