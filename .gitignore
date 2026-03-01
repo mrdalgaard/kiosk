@@ -18,4 +18,4 @@ data/images/*
 
 .agents/
 
-venv/
+venv/public_status/.env.public
