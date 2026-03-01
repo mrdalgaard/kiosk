@@ -4,3 +4,4 @@ requests
 Flask-DebugToolbar
 flask_apscheduler
 gunicorn
+python-dotenv
