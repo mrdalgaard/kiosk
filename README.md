@@ -51,11 +51,11 @@ docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS < seed.sql
 Systemet er nu tilgængeligt i browseren på: `http://localhost:5000`
 
 ### 4. Public App (Read-Only)
-Der er tilføjet en separat public status app (`kiosk-public`) som kører på port 5001. Denne instans kræver ikke login, og giver udelukkende en læseadgang (read-only) for øget sikkerhed. Processen er:
+Der er tilføjet en separat public status app (`kiosk-public`) som standard er konfigureret til port 5001. Denne instans kræver ikke login, og giver udelukkende en læseadgang (read-only) for øget sikkerhed. Processen er:
 
 1. Opret en adskilt miljøfil (som du kan tilpasse med ny adgangskode efter eget valg for den offentlige adgang):
 ```bash
-cp public_status/.env.public public_status/.env.public
+cp public_status/.env.public.example public_status/.env.public
 ```
 
 2. Skab den specifikke read-only bruger i databasen:
@@ -63,7 +63,16 @@ cp public_status/.env.public public_status/.env.public
 cat setup_public_user.sql | docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS
 ```
 
-Public applikationen kører nu uafhængigt og er tilgængelig på: `http://localhost:5001`
+3. Aktiver i Docker Compose:
+Sørg for at fjerne kommentarerne (`#`) ud for `public_app`-sektionen i din `compose.yaml` fil (se `compose.example.yaml` for reference), hvorefter du kører `docker compose up -d`. Public applikationen er derefter tilgængelig på: `http://localhost:5001`
+
+### Lokal kørsel udenfor Docker
+Både den primære kiosk-app og public-appen kan køres direkte lokalt (ved f.eks. test og udvikling). Begge apps indlæser nu automatisk henholdsvis deres `.env` og `.env.public` filer.
+For at undgå port-konflikter kan du angive en specifik port som det første argument:
+```bash
+python run.py 5010
+python public_status/app.py 5011
+```
 
 ## Fejlfinding (Troubleshooting)
 
