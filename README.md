@@ -50,6 +50,21 @@ docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS < seed.sql
 
 Systemet er nu tilgængeligt i browseren på: `http://localhost:5000`
 
+### 4. Public App (Read-Only)
+Der er tilføjet en separat public status app (`kiosk-public`) som kører på port 5001. Denne instans kræver ikke login, og giver udelukkende en læseadgang (read-only) for øget sikkerhed. Processen er:
+
+1. Opret en adskilt miljøfil (som du kan tilpasse med ny adgangskode efter eget valg for den offentlige adgang):
+```bash
+cp public_status/.env.public public_status/.env.public
+```
+
+2. Skab den specifikke read-only bruger i databasen:
+```bash
+cat setup_public_user.sql | docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS
+```
+
+Public applikationen kører nu uafhængigt og er tilgængelig på: `http://localhost:5001`
+
 ## Fejlfinding (Troubleshooting)
 
 * **Ændringer afspejles ikke**: Hvis du har lavet ændringer i koden lokalt, kræver genstart af applikationen ofte, at containeren genbygges for at de nye filer inkluderes: `docker compose up --build -d`.

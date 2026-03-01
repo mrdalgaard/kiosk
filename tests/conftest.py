@@ -5,6 +5,10 @@ Mocks psycopg so tests can run without a real database.
 import sys
 from unittest.mock import MagicMock
 
+# Mock python-dotenv for tests
+mock_dotenv = MagicMock()
+sys.modules['dotenv'] = mock_dotenv
+
 # Mock psycopg modules before any app imports
 mock_psycopg = MagicMock()
 mock_psycopg.rows = MagicMock()

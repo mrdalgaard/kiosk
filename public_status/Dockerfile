@@ -1,0 +1,27 @@
+FROM python:alpine
+
+WORKDIR /app
+
+# Create a non-root user and ensure directories exist
+RUN adduser -D appuser && \
+    mkdir -p /app/public_status/static && \
+    chown -R appuser:appuser /app
+
+COPY requirements.txt .
+
+RUN apk add --no-cache curl
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install -r requirements.txt
+
+COPY . .
+
+# Ensure appuser owns everything
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--worker-class", "gthread", "--threads", "2", "--timeout", "60", "--bind", "0.0.0.0:5000", "--access-logfile", "-", "app:app"]

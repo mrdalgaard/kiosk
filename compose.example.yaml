@@ -24,6 +24,26 @@ services:
     # depends_on:
     #   - db
 
+  # public_app:
+  #   build: ./public_status
+  #   container_name: ${PUBLIC_CONTAINER_NAME:-kiosk-public}
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #   env_file:
+  #     - ./public_status/.env.public
+  #   environment:
+  #     - TZ=${TIMEZONE:-Europe/Copenhagen}
+  #   restart: unless-stopped
+  #   ports:
+  #     - "5001:5000" # Expose port 5001 for the public app
+  #   healthcheck:
+  #     test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 15s
+  #   depends_on:
+  #     - db
     # Example of an attached database service
     #  db:
     #    image: postgres:alpine
