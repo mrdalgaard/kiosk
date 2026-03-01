@@ -1,56 +1,46 @@
-{% extends "base.html" %}
+{% extends "admin/layout_form.html" %}
 
 {% block title %}{{ 'Rediger Opgave' if maintenance else 'Ny Opgave' }}{% endblock %}
 
-{% block head %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% block admin_title %}
+{{ '✏️ Rediger Opgave' if maintenance else '➕ Ny Opgave' }}
 {% endblock %}
 
-{% block content %}
-<div class="app-container" style="justify-content: center;">
-    <div class="panel" style="max-width: 600px; width: 100%;">
-        <div class="brand-header"
-            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">
-                {{ '✏️ Rediger Opgave' if maintenance else '➕ Ny Opgave' }}
-            </h1>
-        </div>
+{% block admin_content %}
 
-        <form method="POST"
-            action="{{ url_for('admin.maintenance_edit', id=maintenance.id) if maintenance else url_for('admin.maintenance_new') }}"
-            style="display: flex; flex-direction: column; gap: 1.5rem;">
+<form method="POST"
+    action="{{ url_for('admin.maintenance_edit', id=maintenance.id) if maintenance else url_for('admin.maintenance_new') }}"
+    style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-            <!-- Task Name -->
-            <div>
-                <label for="maintenance_type"
-                    style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Opgave Navn
-                    <span style="color: red;">*</span></label>
-                <input type="text" id="maintenance_type" name="maintenance_type" required
-                    value="{{ maintenance.maintenance_type if maintenance else '' }}" placeholder="f.eks. Olieskift"
-                    style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
-            </div>
-
-            <!-- Interval Time -->
-            <div>
-                <label for="interval_h"
-                    style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Driftstimer
-                    mellem udførsel<span style="color: red;">*</span></label>
-                <input type="number" id="interval_h" name="interval_h" step="0.1" min="0" required
-                    value="{{ maintenance.interval_h if maintenance else '' }}" placeholder="f.eks. 15"
-                    style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
-            </div>
-
-            <!-- Actions -->
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <a href="{{ url_for('admin.maintenance_list') }}" style="text-decoration: none; flex: 1;">
-                    <button type="button" class="action-btn clear-btn"
-                        style="width: 100%; font-size: 1.2rem; padding: 1rem;">Annuller</button>
-                </a>
-                <button type="submit" class="action-btn submit-btn" style="flex: 2; font-size: 1.2rem; padding: 1rem;">
-                    Gem
-                </button>
-            </div>
-        </form>
+    <!-- Task Name -->
+    <div>
+        <label for="maintenance_type"
+            style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Opgave Navn
+            <span style="color: red;">*</span></label>
+        <input type="text" id="maintenance_type" name="maintenance_type" required
+            value="{{ maintenance.maintenance_type if maintenance else '' }}" placeholder="f.eks. Olieskift"
+            style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
     </div>
-</div>
+
+    <!-- Interval Time -->
+    <div>
+        <label for="interval_h"
+            style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Driftstimer
+            mellem udførsel<span style="color: red;">*</span></label>
+        <input type="number" id="interval_h" name="interval_h" step="0.1" min="0" required
+            value="{{ maintenance.interval_h if maintenance else '' }}" placeholder="f.eks. 15"
+            style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <a href="{{ url_for('admin.maintenance_list') }}" style="text-decoration: none; flex: 1;">
+            <button type="button" class="action-btn clear-btn"
+                style="width: 100%; font-size: 1.2rem; padding: 1rem;">Annuller</button>
+        </a>
+        <button type="submit" class="action-btn submit-btn" style="flex: 2; font-size: 1.2rem; padding: 1rem;">
+            Gem
+        </button>
+    </div>
+</form>
 {% endblock %}

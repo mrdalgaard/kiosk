@@ -1,69 +1,58 @@
-{% extends "base.html" %}
+{% extends "admin/layout_form.html" %}
 
 {% block title %}{{ 'Rediger Område' if section else 'Nyt Område' }}{% endblock %}
 
-{% block head %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% block admin_title %}
+{{ '✏️ Rediger Område' if section else '➕ Nyt Område' }}
 {% endblock %}
 
-{% block content %}
-<div class="app-container" style="justify-content: center;">
-    <div class="panel" style="max-width: 600px; width: 100%;">
-        <div class="brand-header"
-            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">
-                {{ '✏️ Rediger Område' if section else '➕ Nyt Område' }}
-            </h1>
-        </div>
+{% block admin_content %}
 
-        <form method="POST"
-            action="{{ url_for('admin.section_edit', id=section.id) if section else url_for('admin.section_new') }}"
-            style="display: flex; flex-direction: column; gap: 1.5rem;">
+<form method="POST"
+    action="{{ url_for('admin.section_edit', id=section.id) if section else url_for('admin.section_new') }}"
+    style="display: flex; flex-direction: column; gap: 1.5rem;">
 
-            <!-- Section Name -->
-            <div>
-                <label for="section_name"
-                    style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Områdenavn
-                    <span style="color: red;">*</span></label>
-                <input type="text" id="section_name" name="section_name" required
-                    value="{{ section.section_name if section else '' }}"
-                    style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
-            </div>
-
-            <!-- Cutting Time -->
-            <div>
-                <label for="cutting_time_in_h"
-                    style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Estimeret
-                    Klippetid (Timer) <span style="color: red;">*</span></label>
-                <input type="number" id="cutting_time_in_h" name="cutting_time_in_h" step="0.1" min="0" required
-                    value="{{ section.cutting_time_in_h if section else '' }}"
-                    style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
-                <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; color: #6b7280;">Brug punktum for decimaler, f.eks.
-                    1.5 for halvanden time.</p>
-            </div>
-
-            <!-- Status Checkbox -->
-            <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
-                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
-                    <input type="checkbox" name="disabled" id="disabled"
-                        style="width: 1.5rem; height: 1.5rem; cursor: pointer;" {% if section and section.disabled
-                        %}checked{% endif %}>
-                    <span style="font-weight: bold; font-size: 1.1rem; color: #4b5563;">Deaktiver Område (Skjul for
-                        brugere)</span>
-                </label>
-            </div>
-
-            <!-- Actions -->
-            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                <a href="{{ url_for('admin.section_list') }}" style="text-decoration: none; flex: 1;">
-                    <button type="button" class="action-btn clear-btn"
-                        style="width: 100%; font-size: 1.2rem; padding: 1rem;">Annuller</button>
-                </a>
-                <button type="submit" class="action-btn submit-btn" style="flex: 2; font-size: 1.2rem; padding: 1rem;">
-                    Gem
-                </button>
-            </div>
-        </form>
+    <!-- Section Name -->
+    <div>
+        <label for="section_name"
+            style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Områdenavn
+            <span style="color: red;">*</span></label>
+        <input type="text" id="section_name" name="section_name" required
+            value="{{ section.section_name if section else '' }}"
+            style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
     </div>
-</div>
+
+    <!-- Cutting Time -->
+    <div>
+        <label for="cutting_time_in_h"
+            style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 1.1rem;">Estimeret
+            Klippetid (Timer) <span style="color: red;">*</span></label>
+        <input type="number" id="cutting_time_in_h" name="cutting_time_in_h" step="0.1" min="0" required
+            value="{{ section.cutting_time_in_h if section else '' }}"
+            style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box;">
+        <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; color: #6b7280;">Brug punktum for decimaler, f.eks.
+            1.5 for halvanden time.</p>
+    </div>
+
+    <!-- Status Checkbox -->
+    <div style="background: #f9fafb; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+            <input type="checkbox" name="disabled" id="disabled" style="width: 1.5rem; height: 1.5rem; cursor: pointer;"
+                {% if section and section.disabled %}checked{% endif %}>
+            <span style="font-weight: bold; font-size: 1.1rem; color: #4b5563;">Deaktiver Område (Skjul for
+                brugere)</span>
+        </label>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <a href="{{ url_for('admin.section_list') }}" style="text-decoration: none; flex: 1;">
+            <button type="button" class="action-btn clear-btn"
+                style="width: 100%; font-size: 1.2rem; padding: 1rem;">Annuller</button>
+        </a>
+        <button type="submit" class="action-btn submit-btn" style="flex: 2; font-size: 1.2rem; padding: 1rem;">
+            Gem
+        </button>
+    </div>
+</form>
 {% endblock %}

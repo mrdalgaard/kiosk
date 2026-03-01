@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+{% block admin_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="app-container" style="justify-content: center;">
+    <div class="panel" style="{% block panel_style %}max-width: 600px; width: 100%;{% endblock %}">
+
+        {% block watermark %}{% endblock %}
+
+        <div class="brand-header"
+            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; position: relative; z-index: 1; flex-shrink: 0;">
+            <h1 style="color: var(--brand-color); font-size: {% block title_size %}2rem{% endblock %}; margin: 0;">
+                {% block admin_title %}{% endblock %}
+            </h1>
+        </div>
+
+        {% block admin_content %}{% endblock %}
+    </div>
+</div>
+{% block admin_scripts %}{% endblock %}
+{% endblock %}

@@ -1,113 +1,93 @@
-{% extends "base.html" %}
+{% extends "admin/layout_list.html" %}
 
 {% block title %}Produktadministration{% endblock %}
+{% block admin_title %}⚙️ Produktadministration{% endblock %}
 
-{% block head %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-{% endblock %}
-
-{% block content %}
-<div class="app-container" style="justify-content: center;">
-    <div class="panel"
-        style="flex: 1; display: flex; flex-direction: column; height: calc(100vh - 3rem); overflow: hidden; position: relative;">
-
-        <!-- Logo Watermark -->
-        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
-            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
-
-        <div class="brand-header"
-            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">⚙️ Produktadministration</h1>
-        </div>
-
-        <!-- Scrollable table -->
-        <div
-            style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; position: relative; z-index: 1;">
-            <table class="data-table" style="margin: 0;">
-                <thead style="position: sticky; top: 0; z-index: 2; background: white;">
-                    <tr>
-                        <th style="width: 60px;">Billede</th>
-                        <th>Navn</th>
-                        <th>Pris</th>
-                        <th>Sort.</th>
-                        <th>Status</th>
-                        <th style="width: 220px;">Handling</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                    <tr>
-                        <td>
-                            <img src="{{ url_for('static', filename='images/' + product.imagefilename) }}"
-                                style="height: 40px; border-radius: 4px;">
-                        </td>
-                        <td style="font-weight: bold; font-size: 1.1rem;">{{ product.productname }}</td>
-                        <td>{{ product.itemprice }} kr.</td>
-                        <td>{{ product.sorting }}</td>
-                        <td>
-                            {% if product.disabled %}
-                            <span class="status-disabled">Deaktiveret</span>
-                            {% else %}
-                            <span class="status-active">Aktiv</span>
-                            {% endif %}
-                        </td>
-                        <td style="width: 220px;">
-                            <div style="display: flex; gap: 0.5rem; overflow: hidden;">
-                                <a href="{{ url_for('admin.product_edit', id=product.productid) }}"
-                                    style="display: flex; text-decoration: none; width: calc(50% - 0.25rem);">
-                                    <button type="button" class="inline-btn inline-btn-edit">✏️ Rediger</button>
-                                </a>
-                                <form action="{{ url_for('admin.product_delete', id=product.productid) }}" method="POST"
-                                    style="display: flex; margin: 0; width: calc(50% - 0.25rem);">
-                                    <button type="button" class="inline-btn inline-btn-delete"
-                                        onclick="showDeleteModal(this, '{{ product.productname }}')">🗑 Slet</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Bottom Action Row -->
-        <div style="display: flex; gap: 1rem; height: 4.5rem; flex-shrink: 0; position: relative; z-index: 1;">
-            <div style="flex: 1;">
-                <a href="{{ url_for('main.index') }}" style="text-decoration: none; display: block; height: 100%;">
-                    <button class="action-btn clear-btn" type="button"
-                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">Tilbage til
-                        Kiosk</button>
-                </a>
-            </div>
-            <div style="flex: 1;">
-                <a href="{{ url_for('admin.image_gallery') }}"
-                    style="text-decoration: none; display: block; height: 100%;">
-                    <button class="action-btn" type="button"
-                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🖼️
-                        Produktbilleder</button>
-                </a>
-            </div>
-            <div style="flex: 1;">
-                <a href="{{ url_for('admin.mowing_user_list') }}"
-                    style="text-decoration: none; display: block; height: 100%;">
-                    <button class="action-btn" type="button"
-                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🚜
-                        Greenteam</button>
-                </a>
-            </div>
-            <div style="flex: 1;">
-                <a href="{{ url_for('admin.product_new') }}"
-                    style="text-decoration: none; display: block; height: 100%;">
-                    <button class="action-btn submit-btn" type="button"
-                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Nyt
-                        Produkt</button>
-                </a>
-            </div>
-        </div>
-
-    </div>
+{% block admin_content %}
+<!-- Scrollable table -->
+<div
+    style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; position: relative; z-index: 1;">
+    <table class="data-table" style="margin: 0;">
+        <thead style="position: sticky; top: 0; z-index: 2; background: white;">
+            <tr>
+                <th style="width: 60px;">Billede</th>
+                <th>Navn</th>
+                <th>Pris</th>
+                <th>Sort.</th>
+                <th>Status</th>
+                <th style="width: 220px;">Handling</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    <img src="{{ url_for('static', filename='images/' + product.imagefilename) }}"
+                        style="height: 40px; border-radius: 4px;">
+                </td>
+                <td style="font-weight: bold; font-size: 1.1rem;">{{ product.productname }}</td>
+                <td>{{ product.itemprice }} kr.</td>
+                <td>{{ product.sorting }}</td>
+                <td>
+                    {% if product.disabled %}
+                    <span class="status-disabled">Deaktiveret</span>
+                    {% else %}
+                    <span class="status-active">Aktiv</span>
+                    {% endif %}
+                </td>
+                <td style="width: 220px;">
+                    <div style="display: flex; gap: 0.5rem; overflow: hidden;">
+                        <a href="{{ url_for('admin.product_edit', id=product.productid) }}"
+                            style="display: flex; text-decoration: none; width: calc(50% - 0.25rem);">
+                            <button type="button" class="inline-btn inline-btn-edit">✏️ Rediger</button>
+                        </a>
+                        <form action="{{ url_for('admin.product_delete', id=product.productid) }}" method="POST"
+                            style="display: flex; margin: 0; width: calc(50% - 0.25rem);">
+                            <button type="button" class="inline-btn inline-btn-delete"
+                                onclick="showDeleteModal(this, '{{ product.productname }}')">🗑 Slet</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
+{% endblock %}
+
+{% block admin_actions %}
+<div style="flex: 1;">
+    <a href="{{ url_for('main.index') }}" style="text-decoration: none; display: block; height: 100%;">
+        <button class="action-btn clear-btn" type="button"
+            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">Tilbage til
+            Kiosk</button>
+    </a>
+</div>
+<div style="flex: 1;">
+    <a href="{{ url_for('admin.image_gallery') }}" style="text-decoration: none; display: block; height: 100%;">
+        <button class="action-btn" type="button"
+            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🖼️
+            Produktbilleder</button>
+    </a>
+</div>
+<div style="flex: 1;">
+    <a href="{{ url_for('admin.mowing_user_list') }}" style="text-decoration: none; display: block; height: 100%;">
+        <button class="action-btn" type="button"
+            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🚜
+            Greenteam</button>
+    </a>
+</div>
+<div style="flex: 1;">
+    <a href="{{ url_for('admin.product_new') }}" style="text-decoration: none; display: block; height: 100%;">
+        <button class="action-btn submit-btn" type="button"
+            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Nyt
+            Produkt</button>
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_scripts %}
 {% from "admin/components/_delete_modal.html" import render_delete_modal %}
 {{ render_delete_modal("Slet produkt?") }}
 {% endblock %}
