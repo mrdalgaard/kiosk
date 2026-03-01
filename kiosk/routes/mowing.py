@@ -37,7 +37,7 @@ def register_mowing():
     
     with get_db_connection() as conn:
         with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
-            curs.execute("SELECT * FROM mowingsections ORDER by id")
+            curs.execute("SELECT * FROM mowingsections WHERE disabled = false ORDER by id")
             sections = curs.fetchall()
     
     return render_template('register_mowing.html', sections=sections, today_date=today_date)

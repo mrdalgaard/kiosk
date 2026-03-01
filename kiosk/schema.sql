@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS public.mowingsections
     id serial NOT NULL,
     section_name character varying(50) COLLATE pg_catalog."default" NOT NULL,
     cutting_time_in_h real NOT NULL DEFAULT 0,
+    disabled boolean NOT NULL DEFAULT false,
     CONSTRAINT mowingsections_pkey PRIMARY KEY (id)
 );
 

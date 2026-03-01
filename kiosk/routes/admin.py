@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash
 from ..database import get_db_connection
 import psycopg
+from psycopg import errors
 import os
 from werkzeug.utils import secure_filename
 
@@ -293,3 +294,204 @@ def mowing_user_delete(id):
         flash("Fejl ved fjernelse af medlem.")
         
     return redirect(url_for('admin.mowing_user_list'))
+
+
+# --- MOWING SECTIONS ADMIN ---
+
+@bp.route('/sections')
+@admin_required
+def section_list():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
+                curs.execute("SELECT * FROM mowingsections ORDER BY section_name")
+                sections = curs.fetchall()
+        return render_template('admin/sections_list.html', sections=sections)
+    except Exception as e:
+        current_app.logger.error(f"Error listing sections: {e}")
+        flash("Kunne ikke hente klippeområder.")
+        return redirect(url_for('admin.mowing_user_list'))
+
+@bp.route('/sections/new', methods=['GET', 'POST'])
+@admin_required
+def section_new():
+    if request.method == 'POST':
+        return _handle_section_save()
+    return render_template('admin/section_form.html', section=None)
+
+@bp.route('/sections/<int:id>/edit', methods=['GET', 'POST'])
+@admin_required
+def section_edit(id):
+    if request.method == 'POST':
+        return _handle_section_save(id)
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
+                curs.execute("SELECT * FROM mowingsections WHERE id = %s", (id,))
+                section = curs.fetchone()
+        
+        if not section:
+            flash("Område ikke fundet.")
+            return redirect(url_for('admin.section_list'))
+            
+        return render_template('admin/section_form.html', section=section)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching section {id}: {e}")
+        flash("Fejl ved hentning af område.")
+        return redirect(url_for('admin.section_list'))
+
+@bp.route('/sections/<int:id>/delete', methods=['POST'])
+@admin_required
+def section_delete(id):
+    try:
+        with get_db_connection() as conn:
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    curs.execute("DELETE FROM mowingsections WHERE id = %s", (id,))
+            flash("Område slettet.")
+    except Exception as e:
+        # If there's history, disable it instead of deleting
+        if 'mowingactivities' in str(e) or 'foreign key' in str(e).lower() or getattr(e, 'sqlstate', None) == '23503':
+            try:
+                with get_db_connection() as conn:
+                    with conn.cursor() as curs:
+                        curs.execute("UPDATE mowingsections SET disabled = true WHERE id = %s", (id,))
+                    conn.commit()
+                flash("Området kunne ikke slettes pga. klippehistorik. Det er i stedet blevet deaktiveret og skjult for brugerne.")
+            except Exception as update_err:
+                current_app.logger.error(f"Error disabling section {id}: {update_err}")
+                flash("Fejl ved deaktivering af område.")
+    except Exception as e:
+        current_app.logger.error(f"Error deleting section {id}: {e}")
+        flash("Fejl ved sletning af område.")
+        
+    return redirect(url_for('admin.section_list'))
+
+def _handle_section_save(section_id=None):
+    section_name = request.form.get('section_name')
+    cutting_time = request.form.get('cutting_time_in_h')
+    disabled = request.form.get('disabled') == 'on'
+
+    try:
+        cutting_time = float(cutting_time)
+        with get_db_connection() as conn:
+            with conn.cursor() as curs:
+                if section_id:
+                    curs.execute("""
+                        UPDATE mowingsections 
+                        SET section_name=%s, cutting_time_in_h=%s, disabled=%s
+                        WHERE id=%s
+                    """, (section_name, cutting_time, disabled, section_id))
+                else:
+                    curs.execute("""
+                        INSERT INTO mowingsections (section_name, cutting_time_in_h, disabled)
+                        VALUES (%s, %s, %s)
+                    """, (section_name, cutting_time, disabled))
+            conn.commit()
+            
+        flash("Område gemt.")
+        return redirect(url_for('admin.section_list'))
+
+    except ValueError:
+        flash("Tidsestimat skal være et tal (f.eks. 1.5).")
+        return render_template('admin/section_form.html', section=request.form)
+    except Exception as e:
+        current_app.logger.error(f"Error saving section: {e}")
+        flash(f"Fejl ved gemning: {e}")
+        return render_template('admin/section_form.html', section=request.form if not section_id else None)
+
+
+# --- MOWING MAINTENANCE ADMIN ---
+
+@bp.route('/maintenance')
+@admin_required
+def maintenance_list():
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
+                curs.execute("SELECT * FROM mowingmaintenance ORDER BY interval_h")
+                maintenance_items = curs.fetchall()
+        return render_template('admin/maintenance_list.html', maintenance_items=maintenance_items)
+    except Exception as e:
+        current_app.logger.error(f"Error listing maintenance items: {e}")
+        flash("Kunne ikke hente vedligeholdelsesopgaver.")
+        return redirect(url_for('admin.mowing_user_list'))
+
+@bp.route('/maintenance/new', methods=['GET', 'POST'])
+@admin_required
+def maintenance_new():
+    if request.method == 'POST':
+        return _handle_maintenance_save()
+    return render_template('admin/maintenance_form.html', maintenance=None)
+
+@bp.route('/maintenance/<int:id>/edit', methods=['GET', 'POST'])
+@admin_required
+def maintenance_edit(id):
+    if request.method == 'POST':
+        return _handle_maintenance_save(id)
+
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
+                curs.execute("SELECT * FROM mowingmaintenance WHERE id = %s", (id,))
+                maintenance = curs.fetchone()
+        
+        if not maintenance:
+            flash("Opgave ikke fundet.")
+            return redirect(url_for('admin.maintenance_list'))
+            
+        return render_template('admin/maintenance_form.html', maintenance=maintenance)
+
+    except Exception as e:
+        current_app.logger.error(f"Error fetching maintenance item {id}: {e}")
+        flash("Fejl ved hentning af opgave.")
+        return redirect(url_for('admin.maintenance_list'))
+
+@bp.route('/maintenance/<int:id>/delete', methods=['POST'])
+@admin_required
+def maintenance_delete(id):
+    try:
+        with get_db_connection() as conn:
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    curs.execute("DELETE FROM mowingmaintenance WHERE id = %s", (id,))
+            flash("Vedligeholdelsesopgave slettet.")
+    except Exception as e:
+        current_app.logger.error(f"Error deleting maintenance item {id}: {e}")
+        flash("Fejl ved sletning af opgave.")
+        
+    return redirect(url_for('admin.maintenance_list'))
+
+def _handle_maintenance_save(maintenance_id=None):
+    maintenance_type = request.form.get('maintenance_type')
+    interval_h = request.form.get('interval_h')
+
+    try:
+        interval_h = float(interval_h)
+        with get_db_connection() as conn:
+            with conn.cursor() as curs:
+                if maintenance_id:
+                    curs.execute("""
+                        UPDATE mowingmaintenance 
+                        SET maintenance_type=%s, interval_h=%s
+                        WHERE id=%s
+                    """, (maintenance_type, interval_h, maintenance_id))
+                else:
+                    curs.execute("""
+                        INSERT INTO mowingmaintenance (maintenance_type, interval_h)
+                        VALUES (%s, %s)
+                    """, (maintenance_type, interval_h))
+            conn.commit()
+            
+        flash("Opgave gemt.")
+        return redirect(url_for('admin.maintenance_list'))
+
+    except ValueError:
+        flash("Intervallet skal være et tal (f.eks. 15).")
+        return render_template('admin/maintenance_form.html', maintenance=request.form)
+    except Exception as e:
+        current_app.logger.error(f"Error saving maintenance item: {e}")
+        flash(f"Fejl ved gemning: {e}")
+        return render_template('admin/maintenance_form.html', maintenance=request.form if not maintenance_id else None)

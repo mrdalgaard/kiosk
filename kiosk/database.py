@@ -42,6 +42,7 @@ def init_db_schema(app):
         with get_db_connection() as conn:
             with conn.cursor() as curs:
                 curs.execute(schema_sql)
+                    
             conn.commit()
             
         app.logger.info("Database schema initialized successfully.")

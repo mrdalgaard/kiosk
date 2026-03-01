@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Greenteam Administration{% endblock %}
+{% block title %}Vedligeholdelsesopgaver{% endblock %}
 
 {% block head %}
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -11,33 +11,9 @@
     <div class="panel"
         style="flex: 1; display: flex; flex-direction: column; height: calc(100vh - 3rem); overflow: hidden; position: relative;">
 
-        <!-- Logo Watermark -->
-        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
-            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
-
         <div class="brand-header"
             style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">🚜 Greenteam Administration</h1>
-        </div>
-
-        <!-- Add User Form -->
-        <div
-            style="background: #f9fafb; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; position: relative; z-index: 1;">
-            <form action="{{ url_for('admin.mowing_user_add') }}" method="POST"
-                style="display: flex; gap: 1rem; align-items: center; margin: 0;">
-                <label for="customerid" style="font-weight: bold; font-size: 1.1rem; white-space: nowrap;">Tilføj
-                    medlem:</label>
-                <select name="customerid" id="customerid" required
-                    style="flex: 1; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem;">
-                    <option value="" disabled selected>-- Vælg et medlem at tilføje --</option>
-                    {% for customer in available_customers %}
-                    <option value="{{ customer.customerid }}">{{ customer.customername }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" class="action-btn submit-btn"
-                    style="white-space: nowrap; margin: 0; padding: 0.75rem 1.5rem; font-size: 1.1rem;">➕
-                    Tilføj</button>
-            </form>
+            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">🔧 Vedligeholdelsesopgaver</h1>
         </div>
 
         <!-- Scrollable table -->
@@ -46,28 +22,36 @@
             <table class="data-table" style="margin: 0;">
                 <thead style="position: sticky; top: 0; z-index: 2; background: white;">
                     <tr>
-                        <th style="width: 80px;">ID</th>
-                        <th>Navn</th>
-                        <th style="width: 140px; text-align: center;">Handling</th>
+                        <th style="width: 60px;">ID</th>
+                        <th>Opgave</th>
+                        <th>Interval (Timer)</th>
+                        <th style="width: 220px;">Handling</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in mowing_users %}
+                    {% for item in maintenance_items %}
                     <tr>
-                        <td style="color: #6b7280;">#{{ user.customerid }}</td>
-                        <td style="font-weight: bold; font-size: 1.1rem;">{{ user.customername }}</td>
-                        <td style="width: 140px;">
-                            <form action="{{ url_for('admin.mowing_user_delete', id=user.customerid) }}" method="POST"
-                                style="display: flex; margin: 0;">
-                                <button type="button" class="inline-btn inline-btn-delete" style="width: 100%;"
-                                    onclick="showDeleteModal(this, '{{ user.customername }}')">🗑 Slet</button>
-                            </form>
+                        <td style="color: #6b7280;">#{{ item.id }}</td>
+                        <td style="font-weight: bold; font-size: 1.1rem;">{{ item.maintenance_type }}</td>
+                        <td>{{ item.interval_h }}</td>
+                        <td style="width: 220px;">
+                            <div style="display: flex; gap: 0.5rem; overflow: hidden;">
+                                <a href="{{ url_for('admin.maintenance_edit', id=item.id) }}"
+                                    style="display: flex; text-decoration: none; width: calc(50% - 0.25rem);">
+                                    <button type="button" class="inline-btn inline-btn-edit">✏️ Rediger</button>
+                                </a>
+                                <form action="{{ url_for('admin.maintenance_delete', id=item.id) }}" method="POST"
+                                    style="display: flex; margin: 0; width: calc(50% - 0.25rem);">
+                                    <button type="button" class="inline-btn inline-btn-delete"
+                                        onclick="showDeleteModal(this, '{{ item.maintenance_type }}')">🗑 Slet</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="3" style="text-align: center; color: #6b7280; padding: 2rem;">Ingen medlemmer i
-                            Greenteamet endnu.</td>
+                        <td colspan="4" style="text-align: center; color: #6b7280; padding: 2rem;">Ingen opgaver fundet.
+                            Opret en ny.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -77,27 +61,27 @@
         <!-- Bottom Action Row -->
         <div style="display: flex; gap: 1rem; height: 4.5rem; flex-shrink: 0; position: relative; z-index: 1;">
             <div style="flex: 1;">
-                <a href="{{ url_for('admin.product_list') }}"
+                <a href="{{ url_for('admin.section_list') }}"
                     style="text-decoration: none; display: block; height: 100%;">
                     <button class="action-btn clear-btn" type="button"
                         style="width: 100%; height: 100%; font-size: 1.1rem; border: 2px solid var(--border-color); color: var(--text-color);">⬅️
-                        Tilbage til Produkter</button>
+                        Tilbage til Områder</button>
                 </a>
             </div>
             <div style="flex: 1;">
-                <a href="{{ url_for('admin.section_list') }}"
+                <a href="{{ url_for('admin.mowing_user_list') }}"
                     style="text-decoration: none; display: block; height: 100%;">
                     <button class="action-btn" type="button"
-                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #3b82f6; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🗺️
-                        Områder</button>
+                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🚜
+                        Medlemmer</button>
                 </a>
             </div>
             <div style="flex: 1;">
-                <a href="{{ url_for('admin.maintenance_list') }}"
+                <a href="{{ url_for('admin.maintenance_new') }}"
                     style="text-decoration: none; display: block; height: 100%;">
-                    <button class="action-btn" type="button"
-                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #f59e0b; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🔧
-                        Vedligehold</button>
+                    <button class="action-btn submit-btn" type="button"
+                        style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Ny
+                        Opgave</button>
                 </a>
             </div>
         </div>
@@ -110,14 +94,14 @@
     style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
     <div
         style="background:white; border-radius:16px; padding:2rem 2.5rem; max-width:420px; width:90%; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
-        <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#111827;">Fjern fra Greenteam?</h2>
+        <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#111827;">Slet opgave?</h2>
         <p id="delete-modal-name" style="margin:0 0 2rem 0; font-size:1.15rem; color:#6b7280;"></p>
         <div style="display:flex; gap:1rem;">
             <button onclick="closeDeleteModal()" type="button"
                 style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:2px solid var(--border-color, #e5e7eb); border-radius:10px; background:white; color:var(--text-color); cursor:pointer;">Annuller</button>
             <button onclick="submitDelete()" type="button"
                 style="flex:1; padding:1rem; font-size:1.3rem; font-weight:bold; border:none; border-radius:10px; background:#dc2626; color:white; cursor:pointer;">Ja,
-                fjern</button>
+                slet</button>
         </div>
     </div>
 </div>

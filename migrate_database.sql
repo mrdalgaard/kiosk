@@ -1,8 +1,7 @@
 -- Kiosk Database Migration Script
--- Version: Mowing Maintenance Rollout (Timestamp Tracking)
+-- Version: General Database Migrations
 -- 
--- Description: Migrates the `mowingactivities` table from `date` tracking 
--- to precise `timestamp with time zone` tracking and initializes the `user_id` constraint.
+-- Description: Contains pending database migrations to be run manually.
 
 BEGIN;
 
@@ -45,5 +44,8 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Reset the auto-increment sequence
 SELECT setval('mowingmaintenance_id_seq', (SELECT MAX(id) FROM mowingmaintenance));
+
+-- 4. Add disabled column to mowingsections
+ALTER TABLE public.mowingsections ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false;
 
 COMMIT;

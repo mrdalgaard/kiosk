@@ -426,3 +426,138 @@ def test_mowing_user_delete(logged_in_client):
         
         assert mock_curs.execute.call_count == 1
         assert "DELETE FROM mowingusers" in mock_curs.execute.call_args[0][0]
+
+def test_section_list(logged_in_client):
+    """Test loading Sections list."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        mock_curs.fetchall.return_value = [
+            {'id': 1, 'section_name': 'Test Bane 1', 'cutting_time_in_h': 1.5, 'disabled': False}
+        ]
+        
+        response = logged_in_client.get('/admin/sections')
+        assert response.status_code == 200
+        assert b'Test Bane 1' in response.data
+
+def test_section_add(logged_in_client):
+    """Test adding a Section."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        data = {'section_name': 'New Section', 'cutting_time_in_h': '2.5'}
+        response = logged_in_client.post('/admin/sections/new', data=data)
+        
+        assert response.status_code == 302
+        assert '/admin/sections' in response.headers['Location']
+        assert "INSERT INTO mowingsections" in mock_curs.execute.call_args[0][0]
+
+def test_section_delete_fallback_to_disable(logged_in_client):
+    """Test deleting a Section that has history falls back to disabling it."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    import psycopg
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.transaction.return_value.__enter__.return_value = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        
+        # When get_db_connection is called twice in the route, return the same mocked connection
+        mock_db.return_value = mock_conn
+        
+        # We need to simulate the execute throwing a ForeignKeyViolation on the DELETE
+        # but succeeding on the UPDATE
+        def mock_execute(query, args=None):
+            if "DELETE FROM mowingsections" in query:
+                raise Exception('foreign key constraint violation')
+            return MagicMock()
+            
+        mock_curs.execute.side_effect = mock_execute
+        
+        response = logged_in_client.post('/admin/sections/1/delete')
+        
+        assert response.status_code == 302
+        
+        # Second execute should be UPDATE disabled = true
+        assert "UPDATE mowingsections SET disabled = true" in mock_curs.execute.call_args_list[1][0][0]
+
+def test_maintenance_list(logged_in_client):
+    """Test loading Maintenance list."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        mock_curs.fetchall.return_value = [
+            {'id': 1, 'maintenance_type': 'Test Olieskift', 'interval_h': 15.0}
+        ]
+        
+        response = logged_in_client.get('/admin/maintenance')
+        assert response.status_code == 200
+        assert b'Test Olieskift' in response.data
+
+def test_maintenance_add(logged_in_client):
+    """Test adding a Maintenance Task."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        data = {'maintenance_type': 'Knivskift', 'interval_h': '30.0'}
+        response = logged_in_client.post('/admin/maintenance/new', data=data)
+        
+        assert response.status_code == 302
+        assert '/admin/maintenance' in response.headers['Location']
+        assert "INSERT INTO mowingmaintenance" in mock_curs.execute.call_args[0][0]
+
+def test_maintenance_delete(logged_in_client):
+    """Test deleting a Maintenance task."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.transaction.return_value.__enter__.return_value = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        response = logged_in_client.post('/admin/maintenance/1/delete')
+        
+        assert response.status_code == 302
+        assert '/admin/maintenance' in response.headers['Location']
+        assert "DELETE FROM mowingmaintenance" in mock_curs.execute.call_args[0][0]
