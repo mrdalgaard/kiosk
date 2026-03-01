@@ -1,12 +1,14 @@
 import os
+import sys
 import datetime
 from flask import Flask, render_template
 import psycopg
 from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables explicitly from .env.public
+env_path = os.path.join(os.path.dirname(__file__), '.env.public')
+load_dotenv(env_path)
 
 app = Flask(__name__)
 
@@ -100,4 +102,5 @@ def health():
     return "OK", 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5000
+    app.run(host='0.0.0.0', port=port, debug=True)
