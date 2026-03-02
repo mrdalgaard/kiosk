@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS public.mowingactivities
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
     CONSTRAINT mowingactivities_user_id_fkey FOREIGN KEY (user_id)
-        REFERENCES public.mowingusers (customerid) MATCH SIMPLE
+        REFERENCES public.customers (customerid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
