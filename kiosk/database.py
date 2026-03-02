@@ -35,19 +35,28 @@ def init_db_schema(app):
         app.logger.warning(f"Schema file not found at {schema_path}, skipping schema initialization.")
         return
 
-    try:
-        with open(schema_path, 'r') as f:
-            schema_sql = f.read()
-        
-        with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                curs.execute(schema_sql)
-                    
-            conn.commit()
+    import time
+    
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            with open(schema_path, 'r') as f:
+                schema_sql = f.read()
             
-        app.logger.info("Database schema initialized successfully.")
-    except Exception as e:
-        app.logger.error(f"Failed to initialize database schema: {e}")
+            with get_db_connection() as conn:
+                with conn.cursor() as curs:
+                    curs.execute(schema_sql)
+                        
+                conn.commit()
+                
+            app.logger.info("Database schema initialized successfully.")
+            return  # Success, exit the function
+        except Exception as e:
+            if attempt < max_retries - 1:
+                app.logger.warning(f"Database not ready yet (attempt {attempt+1}/{max_retries}): {e}. Retrying in 2 seconds...")
+                time.sleep(2)
+            else:
+                app.logger.error(f"Failed to initialize database schema after {max_retries} attempts: {e}")
 
 
 def get_db_connection():
