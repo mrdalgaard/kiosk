@@ -48,4 +48,8 @@ SELECT setval('mowingmaintenance_id_seq', (SELECT MAX(id) FROM mowingmaintenance
 -- 4. Add disabled column to mowingsections
 ALTER TABLE public.mowingsections ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false;
 
+-- 5. Link mowingactivities foreign key directly to customers
+ALTER TABLE public.mowingactivities DROP CONSTRAINT IF EXISTS mowingactivities_user_id_fkey;
+ALTER TABLE public.mowingactivities ADD CONSTRAINT mowingactivities_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.customers (customerid) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION;
+
 COMMIT;
