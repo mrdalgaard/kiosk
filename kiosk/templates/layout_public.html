@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+{% block public_head %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="app-container"
+    style="justify-content: center; flex-direction: {% block public_flex_direction %}column{% endblock %}; gap: {% block public_gap %}0{% endblock %};">
+    <div class="panel"
+        style="flex: 1; max-width: {% block public_panel_width %}900px{% endblock %}; display: flex; flex-direction: column; height: calc(100vh - 3rem); overflow: hidden; position: relative; margin: 0 auto;">
+
+        <!-- Logo Watermark -->
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
+            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+
+        <div class="brand-header"
+            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
+            <h1
+                style="color: var(--brand-color); font-size: 2rem; margin: 0; {% block public_title_style %}{% endblock %}">
+                {% block public_title %}{% endblock %}
+            </h1>
+        </div>
+
+        {% block public_content %}{% endblock %}
+
+        {% if self.public_actions() %}
+        <!-- Bottom Action Row -->
+        <div
+            style="display: flex; gap: 1rem; height: {% block public_action_height %}3.5rem{% endblock %}; flex-shrink: 0; position: relative; z-index: 1; margin-top: auto;">
+            {% block public_actions %}{% endblock %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% block public_scripts %}{% endblock %}
+{% endblock %}

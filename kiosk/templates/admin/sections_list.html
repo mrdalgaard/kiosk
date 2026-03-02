@@ -5,10 +5,9 @@
 
 {% block admin_content %}
 <!-- Scrollable table -->
-<div
-    style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px; position: relative; z-index: 1;">
-    <table class="data-table" style="margin: 0;">
-        <thead style="position: sticky; top: 0; z-index: 2; background: white;">
+<div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+    <table class="data-table">
+        <thead>
             <tr>
                 <th style="width: 60px;">ID</th>
                 <th>Områdenavn</th>
