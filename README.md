@@ -36,12 +36,7 @@ docker compose up -d --build
 ```
 
 ### 3. Første kørsel (Database Setup)
-Når containerne kører, skal du konfigurere den tomme database med de korrekte tabeller og indsætte startdata (seed data for produkter og vedligeholdsintervaller).
-
-Indlæs skema:
-```bash
-docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < kiosk/schema.sql
-```
+Når containerne kører, vil applikationen automatisk oprette databasestrukturen (tabeller og views). Du skal dog indsætte startdata (seed data for produkter og vedligeholdsintervaller).
 
 Indsæt standard data (kun til lokal test):
 ```bash
