@@ -40,7 +40,7 @@ Når containerne kører, vil applikationen automatisk oprette databasestrukturen
 
 Indsæt standard data (kun til lokal test):
 ```bash
-docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < seed.sql
+docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < seed-testdata.sql
 ```
 
 Systemet er nu tilgængeligt i browseren på: `http://localhost:5000`
