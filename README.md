@@ -40,12 +40,12 @@ Når containerne kører, skal du konfigurere den tomme database med de korrekte 
 
 Indlæs skema:
 ```bash
-docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS < kiosk/schema.sql
+docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < kiosk/schema.sql
 ```
 
 Indsæt standard data (kun til lokal test):
 ```bash
-docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS < seed.sql
+docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < seed.sql
 ```
 
 Systemet er nu tilgængeligt i browseren på: `http://localhost:5000`
@@ -55,12 +55,12 @@ Der er tilføjet en separat public status app (`kiosk-public`) som standard er k
 
 1. Opret en adskilt miljøfil (som du kan tilpasse med ny adgangskode efter eget valg for den offentlige adgang):
 ```bash
-cp public_status/.env.public.example public_status/.env.public
+cp .env.public.example .env.public
 ```
 
 2. Skab den specifikke read-only bruger i databasen:
 ```bash
-cat setup_public_user.sql | docker exec -i kiosk-postgres-1 psql -U KantinePOS -d KantinePOS
+cat setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS
 ```
 
 3. Aktiver i Docker Compose:
