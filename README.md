@@ -6,7 +6,7 @@ AASvK Kiosk System er en webbaseret applikation, specielt designet til at køre 
 
 ## Funktioner
 
-- **Hurtigt Køb**: En intuitiv brugergrænseflade designet specielt til touchskærme, hvor medlemmer kan tilføje varer til en indkøbskurv og gennemføre køb på få sekunder.
+- **Hurtigt Køb**: En intuitiv brugergrænseflade designet specielt til touchskærme. Medlemmer kan tilføje og fjerne varer til en indkøbskurv asynkront uden at siden genindlæses, og gennemføre køb på få sekunder.
 - **Græsklipning**: Registrering af hvilke sektioner og hvor meget græs, der er klippet.
 - **Maskinvedligehold**: Dynamisk system til at beregne driftstimer på udstyrsdele (f.eks. kraftoverføringsaksler og smørepunkter). Systemet giver et letlæseligt visuelt overblik, advarer når service er påkrævet, og understøtter både hurtige skiftedage og timetal, der går i minus.
 - **Admin Panel**: Administratorer kan håndtere brugere, produkter, opdatere priser og overvåge logbøger og vedligeholdelsesintervaller.
@@ -40,7 +40,7 @@ Når containerne kører, vil applikationen automatisk oprette databasestrukturen
 
 Indsæt standard data (kun til lokal test):
 ```bash
-docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < seed-testdata.sql
+docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < scripts/seed-testdata.sql
 ```
 
 Systemet er nu tilgængeligt i browseren på: `http://localhost:5000`
@@ -55,7 +55,7 @@ cp .env.public.example .env.public
 
 2. Skab den specifikke read-only bruger i databasen:
 ```bash
-cat setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS
+cat scripts/setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS
 ```
 
 3. Aktiver i Docker Compose:
@@ -65,7 +65,7 @@ Sørg for at fjerne kommentarerne (`#`) ud for `public_app`-sektionen i din `com
 Både den primære kiosk-app og public-appen kan køres direkte lokalt (ved f.eks. test og udvikling). Begge apps indlæser nu automatisk henholdsvis deres `.env` og `.env.public` filer.
 For at undgå port-konflikter kan du angive en specifik port som det første argument:
 ```bash
-python run.py 5010
+python kiosk/run.py 5010
 python public_status/app.py 5011
 ```
 
@@ -81,5 +81,5 @@ Projektet bruger `pytest` til at validere applikationens logik, databasereturner
 En scripts-fil er inkluderet for nemt at køre testpakken internt i Docker-containeren under de helt korrekte forudsætninger. 
 For at køre samtlige tests, brug:
 ```bash
-./run_tests.sh
+./scripts/run_tests.sh
 ```

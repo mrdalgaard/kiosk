@@ -3,7 +3,7 @@ import sys
 from dotenv import load_dotenv
 
 # Load environment variables from .env file explicitly
-env_path = os.path.join(os.path.dirname(__file__), '.env')
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(env_path)
 
 from kiosk import create_app

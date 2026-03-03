@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     # container_name allows multiple instances on the same host if desired
     container_name: ${CONTAINER_NAME:-kiosk-app}
     volumes:
@@ -25,7 +27,9 @@ services:
 #      - db
 
 #  public_app:
-#    build: ./public_status
+#    build: 
+#      context: .
+#      dockerfile: Dockerfile.public
 #    container_name: ${PUBLIC_CONTAINER_NAME:-kiosk-public}
 #    volumes:
 #      - /etc/localtime:/etc/localtime:ro

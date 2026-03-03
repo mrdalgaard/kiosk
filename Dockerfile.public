@@ -7,7 +7,7 @@ RUN adduser -D appuser && \
     mkdir -p /app/public_status/static && \
     chown -R appuser:appuser /app
 
-COPY requirements.txt .
+COPY public_status/requirements.txt .
 
 RUN apk add --no-cache curl
 
@@ -24,4 +24,4 @@ USER appuser
 
 EXPOSE 5000
 
-CMD ["gunicorn", "--worker-class", "gthread", "--threads", "2", "--timeout", "60", "--bind", "0.0.0.0:5000", "--logger-class", "gunicorn_logger.IgnoreHealthCheckLogger", "--access-logfile", "-", "--access-logformat", "%({x-forwarded-for}i)s %(t)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\"", "app:app"]
+CMD ["gunicorn", "--worker-class", "gthread", "--threads", "2", "--timeout", "60", "--bind", "0.0.0.0:5000", "--logger-class", "public_status.gunicorn_logger.IgnoreHealthCheckLogger", "--access-logfile", "-", "--access-logformat", "%({x-forwarded-for}i)s %(t)s \"%(r)s\" %(s)s %(b)s \"%(f)s\" \"%(a)s\"", "public_status.app:app"]
