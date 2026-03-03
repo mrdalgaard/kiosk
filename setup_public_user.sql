@@ -1,4 +1,6 @@
 -- Create a new read-only role for the public app
+-- How to run:
+-- cat setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS
 DO
 $do$
 BEGIN
