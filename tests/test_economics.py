@@ -96,6 +96,45 @@ class TestEconomicsService:
         upsert_call_args = mock_curs.executemany.call_args_list[1][0]
         assert "INSERT INTO customers" in upsert_call_args[0]
         assert len(upsert_call_args[1]) == 2
+
+    @patch('kiosk.services.economics.EconomicsService._request')
+    @patch('kiosk.services.economics.get_db_connection')
+    def test_update_users_pagination(self, mock_db, mock_request):
+        # Mock API Response with pagination
+        mock_request.side_effect = [
+            {
+                'collection': [
+                    {'customerNumber': 1, 'name': 'User One', 'customerGroup': {'customerGroupNumber': 10}},
+                    {'customerNumber': 2, 'name': 'User Two', 'customerGroup': {'customerGroupNumber': 20}}
+                ],
+                'pagination': {'nextPage': 'https://restapi.e-conomic.com/customers?pagesize=1000&skipPages=1'}
+            },
+            {
+                'collection': [
+                    {'customerNumber': 3, 'name': 'User Three', 'customerGroup': {'customerGroupNumber': 30}}
+                ]
+            }
+        ]
+        
+        # Mock DB
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_db.return_value.__enter__.return_value = mock_conn
+        mock_conn.transaction.return_value.__enter__.return_value = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        
+        mock_curs.fetchall.return_value = []
+        
+        EconomicsService.update_users()
+        
+        # Verify API called twice
+        assert mock_request.call_count == 2
+        
+        # Verify upsert includes users from both pages (total 3)
+        assert mock_curs.executemany.call_count == 1
+        upsert_call_args = mock_curs.executemany.call_args_list[0][0]
+        assert "INSERT INTO customers" in upsert_call_args[0]
+        assert len(upsert_call_args[1]) == 3
         
     @patch('kiosk.services.economics.EconomicsService._request')
     def test_find_kiosk_draft_line_found(self, mock_request):

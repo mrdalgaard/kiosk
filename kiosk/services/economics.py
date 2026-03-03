@@ -48,23 +48,26 @@ class EconomicsService:
         groups = ','.join(str(g) for g in Config.CUSTOMER_GROUPS_ALL)
         url = f"https://restapi.e-conomic.com/customers?pagesize=1000&filter=barred$eq:False$and:customerGroup.customerGroupNumber$in:[{groups}]"
         
-        try:
-            data = EconomicsService._request('GET', url)
-        except Exception as e:
-            logger.error(f"Failed to fetch users from Economics API: {e}")
-            return
-
         api_ids = set()
         upsert_list = []
 
-        if 'collection' in data:
-            for restitem in data['collection']:
-                api_ids.add(restitem['customerNumber'])
-                upsert_list.append((
-                    restitem['customerNumber'], 
-                    restitem['name'], 
-                    restitem['customerGroup']['customerGroupNumber']
-                ))
+        while url:
+            try:
+                data = EconomicsService._request('GET', url)
+            except Exception as e:
+                logger.error(f"Failed to fetch users from Economics API: {e}")
+                raise
+
+            if 'collection' in data:
+                for restitem in data['collection']:
+                    api_ids.add(restitem['customerNumber'])
+                    upsert_list.append((
+                        restitem['customerNumber'], 
+                        restitem['name'], 
+                        restitem['customerGroup']['customerGroupNumber']
+                    ))
+            
+            url = data.get('pagination', {}).get('nextPage')
 
         try:
             with get_db_connection() as conn:
