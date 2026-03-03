@@ -25,13 +25,13 @@ class EconomicsService:
         headers = EconomicsService._get_headers(key)
         try:
             if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=10)
+                response = requests.get(url, headers=headers, timeout=5)
                 logger.debug(f"Getting from {url}")
             elif method == 'POST':
-                response = requests.post(url, headers=headers, json=data, timeout=10)
+                response = requests.post(url, headers=headers, json=data, timeout=5)
                 logger.debug(f"Posting to {url}")
             elif method == 'PUT':
-                response = requests.put(url, headers=headers, json=data, timeout=10)
+                response = requests.put(url, headers=headers, json=data, timeout=5)
                 logger.debug(f"Putting to {url}")
             
             response.raise_for_status()
