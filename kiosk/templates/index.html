@@ -62,26 +62,8 @@
                         <th style="width: 10%;"></th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for item, detail in cart.items() %}
-                    <tr>
-                        <td style="font-weight: bold;">{{ detail["productname"] }}</td>
-                        <td class="col-antal">
-                            <span class="badge" style="padding-right: 0.75rem;">{{ detail["quantity"] }}</span>
-                        </td>
-                        <td style="text-align: right; font-weight: bold;">{{ "{:,.2f}".format(detail["quantity"] *
-                            detail["itemprice"] | float) }}kr</td>
-                        <td style="text-align: center; padding: 0.25rem;">
-                            <a href="{{ url_for('main.remove_from_cart', productid=item) }}"
-                                style="color: var(--danger-red); text-decoration: none; font-size: 2.25rem; font-weight: bold; line-height: 1; display: inline-block;">&times;</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% if not cart %}
-                    <tr>
-                        <td colspan="4" class="empty-state">Ingen varer i kurven</td>
-                    </tr>
-                    {% endif %}
+                <tbody id="cart-tbody">
+                    {% include "partials/cart_table.html" %}
                 </tbody>
             </table>
         </div>
@@ -113,4 +95,72 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const productGrid = document.querySelector('.product-grid');
+        if (productGrid) {
+            productGrid.addEventListener('click', function (e) {
+                const card = e.target.closest('a.product-card');
+                if (card) {
+                    e.preventDefault();
+                    updateCart(card.href);
+                }
+            });
+        }
+
+        const cartTable = document.querySelector('.data-table');
+        if (cartTable) {
+            cartTable.addEventListener('click', function (e) {
+                const removeBtn = e.target.closest('td a');
+                if (removeBtn && removeBtn.href && removeBtn.href.includes('remove_from_cart')) {
+                    e.preventDefault();
+                    updateCart(removeBtn.href);
+                }
+            });
+        }
+
+        function updateCart(url) {
+            const fetchUrl = new URL(url, window.location.origin);
+            fetchUrl.searchParams.append('ajax', '1');
+
+            fetch(fetchUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById('cart-tbody').innerHTML = html;
+                    updateCheckoutButton();
+                })
+                .catch(error => {
+                    console.error('Error updating cart:', error);
+                    showToast('Der skete en fejl ved opdatering af kurven.', 'error');
+                });
+        }
+
+        function updateCheckoutButton() {
+            const tbody = document.getElementById('cart-tbody');
+            const isEmpty = tbody.querySelector('.empty-state') !== null;
+
+            const submitBtn = document.querySelector('.submit-btn');
+            if (submitBtn) {
+                // Need to update the generic onclick / type logic
+                if (isEmpty) {
+                    submitBtn.type = "button";
+                    submitBtn.onclick = function () { showToast('Kurven er tom', 'error'); };
+                } else {
+                    submitBtn.type = "submit";
+                    submitBtn.onclick = function () { this.form.submit(); this.disabled = true; };
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

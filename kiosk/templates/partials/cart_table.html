@@ -1,0 +1,19 @@
+{% for item, detail in cart.items() %}
+<tr>
+    <td style="font-weight: bold;">{{ detail["productname"] }}</td>
+    <td class="col-antal">
+        <span class="badge" style="padding-right: 0.75rem;">{{ detail["quantity"] }}</span>
+    </td>
+    <td style="text-align: right; font-weight: bold;">{{ "{:,.2f}".format(detail["quantity"] *
+        detail["itemprice"] | float) }}kr</td>
+    <td style="text-align: center; padding: 0.25rem;">
+        <a href="{{ url_for('main.remove_from_cart', productid=item) }}"
+            style="color: var(--danger-red); text-decoration: none; font-size: 2.25rem; font-weight: bold; line-height: 1; display: inline-block;">&times;</a>
+    </td>
+</tr>
+{% endfor %}
+{% if not cart %}
+<tr>
+    <td colspan="4" class="empty-state">Ingen varer i kurven</td>
+</tr>
+{% endif %}

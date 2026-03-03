@@ -1,5 +1,5 @@
 
-from flask import Blueprint, render_template, redirect, url_for, session, current_app, flash
+from flask import Blueprint, render_template, redirect, url_for, session, current_app, flash, request
 from ..database import get_db_connection
 from . import login_required
 import psycopg
@@ -50,6 +50,8 @@ def add_to_cart(productid):
     except Exception as e:
         current_app.logger.error(f"Database error adding to cart: {e}")
 
+    if request.args.get('ajax') == '1' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('partials/cart_table.html', cart=session.get('cart', {}))
     return redirect(url_for('main.index'))
 
 @bp.route('/remove_from_cart/<int:productid>')
@@ -62,6 +64,9 @@ def remove_from_cart(productid):
         if cart[key]['quantity'] <= 0:
             del cart[key]
         session['cart'] = cart
+        
+    if request.args.get('ajax') == '1' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('partials/cart_table.html', cart=session.get('cart', {}))
     return redirect(url_for('main.index'))
 
 @bp.route('/checkout', methods=['POST'])
