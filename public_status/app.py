@@ -6,8 +6,8 @@ import psycopg
 from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
-# Load environment variables explicitly from .env.public
-env_path = os.path.join(os.path.dirname(__file__), '.env.public')
+# Load environment variables explicitly from .env.public in the root directory
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env.public')
 load_dotenv(env_path)
 
 app = Flask(__name__)

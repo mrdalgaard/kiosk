@@ -30,7 +30,7 @@ services:
 #    volumes:
 #      - /etc/localtime:/etc/localtime:ro
 #    env_file:
-#      - ./public_status/.env.public
+#      - .env.public
 #    environment:
 #      - TZ=${TIMEZONE:-Europe/Copenhagen}
 #    restart: unless-stopped
