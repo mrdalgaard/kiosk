@@ -218,7 +218,7 @@ def _get_available_images():
     image_dir = os.path.join(current_app.root_path, 'static', 'images')
     try:
         return [f for f in os.listdir(image_dir) if os.path.isfile(os.path.join(image_dir, f))]
-    except:
+    except Exception:
         return []
 
 def _handle_product_save(product_id=None):
