@@ -352,7 +352,7 @@ td.col-antal {
     box-sizing: border-box;
 }
 
-.product-card:active {
+.product-card.pressed {
     background: #e5e7eb;
     border-color: #9ca3af;
     transform: scale(0.96);
