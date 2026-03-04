@@ -70,7 +70,7 @@ docker exec -i kiosk-db-1 psql -U KioskPOS -d KioskPOS < scripts/seed-testdata.s
 
 Opret read-only databasebruger til den offentlige app:
 ```bash
-cat scripts/setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KioskPOS -d KioskPOS
+./scripts/setup_public_user.sh
 ```
 
 Kiosk: `http://localhost:5000` · Public status: `http://localhost:5001`
