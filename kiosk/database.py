@@ -3,7 +3,7 @@ from psycopg_pool import ConnectionPool
 from psycopg.conninfo import make_conninfo
 from .config import Config
 
-def get_db_pool(app=None):
+def get_db_pool():
     """
     Creates and returns a connection pool using configuration from the app config 
     or the Config class directly.
