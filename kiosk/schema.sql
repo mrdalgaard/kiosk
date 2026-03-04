@@ -156,7 +156,7 @@ CREATE OR REPLACE VIEW public.lastmowed AS
   ORDER BY days DESC;
 
 CREATE OR REPLACE VIEW public.mowinghistory AS
- SELECT to_char(m.timestamp, 'dd/mm/yyyy HH24:MI'::text) AS date,
+ SELECT to_char(m.timestamp::date, 'dd/mm/yyyy'::text) AS date,
     c.customername,
     s.section_name,
     m.status

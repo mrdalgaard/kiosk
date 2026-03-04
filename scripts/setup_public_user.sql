@@ -21,11 +21,10 @@ GRANT CONNECT ON DATABASE "KantinePOS" TO kiosk_public;
 -- Grant usage on the public schema
 GRANT USAGE ON SCHEMA public TO kiosk_public;
 
--- Grant SELECT privileges strictly to the necessary tables
-GRANT SELECT ON public.mowingactivities TO kiosk_public;
-GRANT SELECT ON public.mowingsections TO kiosk_public;
-GRANT SELECT ON public.mowingmaintenance TO kiosk_public;
-GRANT SELECT ON public.customers TO kiosk_public;
+-- Grant SELECT privileges to the views used by the public app
+GRANT SELECT ON public.mowinghistory TO kiosk_public;
+GRANT SELECT ON public.lastmowed TO kiosk_public;
+GRANT SELECT ON public.maintenancestatus TO kiosk_public;
 
 -- Optional: ensure future tables do not accidentally inherit privileges
 ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE SELECT ON TABLES FROM kiosk_public;

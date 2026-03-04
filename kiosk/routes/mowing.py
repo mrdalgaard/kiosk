@@ -53,25 +53,10 @@ def mowing_status():
     user_id = session['customerid']
     with get_db_connection() as conn:
         with conn.cursor(row_factory=psycopg.rows.dict_row) as curs:
-            curs.execute("""
-                SELECT TO_CHAR(m.timestamp::date, 'dd/mm/yyyy') as date, c.customername, s.section_name, m.status
-                FROM mowingactivities m
-                JOIN mowingsections s ON m.section_id = s.id
-                JOIN customers c ON m.user_id = c.customerid
-                ORDER BY m.id DESC
-            """,)
+            curs.execute("SELECT * FROM mowinghistory")
             mowing_history = curs.fetchall()
             
-            curs.execute("""
-                SELECT * from (
-                SELECT DISTINCT ON(s.section_name) date_part('days', now() - timestamp)::int as days, c.customername, s.section_name
-                FROM mowingactivities m
-                JOIN mowingsections s ON m.section_id = s.id
-                JOIN customers c ON m.user_id = c.customerid
-                WHERE status = '8/8'
-                ORDER BY s.section_name, timestamp desc) as test
-                ORDER BY days DESC
-            """,)
+            curs.execute("SELECT * FROM lastmowed")
             last_mowed = curs.fetchall()
             
             maintenance_items = get_maintenance_items(curs)

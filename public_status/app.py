@@ -40,28 +40,11 @@ def mowing_status():
     try:
         with get_db_connection() as conn:
             with conn.cursor(row_factory=dict_row) as curs:
-                # 1. Mowing History (similar to main app but independent)
-                curs.execute("""
-                    SELECT TO_CHAR(m.timestamp::date, 'dd/mm/yyyy') as date, c.customername, s.section_name, m.status
-                    FROM mowingactivities m
-                    JOIN mowingsections s ON m.section_id = s.id
-                    JOIN customers c ON m.user_id = c.customerid
-                    ORDER BY m.id DESC
-                    LIMIT 100
-                """)
+                curs.execute("SELECT * FROM mowinghistory LIMIT 100")
                 mowing_history = curs.fetchall()
                 
                 # 2. Last Mowed
-                curs.execute("""
-                    SELECT * from (
-                    SELECT DISTINCT ON(s.section_name) date_part('days', now() - timestamp)::int as days, c.customername, s.section_name
-                    FROM mowingactivities m
-                    JOIN mowingsections s ON m.section_id = s.id
-                    JOIN customers c ON m.user_id = c.customerid
-                    WHERE status = '8/8'
-                    ORDER BY s.section_name, timestamp desc) as test
-                    ORDER BY days DESC
-                """)
+                curs.execute("SELECT * FROM lastmowed")
                 last_mowed = curs.fetchall()
                 
                 # 3. Overdue Maintenance
