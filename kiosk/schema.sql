@@ -115,7 +115,17 @@ END $$;
 CREATE INDEX IF NOT EXISTS mowingusers_pkey_idx
     ON public.mowingusers(customerid);
 
+CREATE INDEX IF NOT EXISTS sales_customerid_idx
+    ON public.sales(customerid);
 
+CREATE INDEX IF NOT EXISTS sales_timestamp_idx
+    ON public.sales("timestamp");
+
+CREATE INDEX IF NOT EXISTS mowingactivities_timestamp_idx
+    ON public.mowingactivities("timestamp");
+
+CREATE INDEX IF NOT EXISTS mowingactivities_section_id_idx
+    ON public.mowingactivities(section_id);
 -- Views
 
 CREATE OR REPLACE VIEW public.todayssalesgrouped AS
