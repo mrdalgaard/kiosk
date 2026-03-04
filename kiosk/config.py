@@ -36,3 +36,7 @@ class Config:
     SEND_FILE_MAX_AGE_DEFAULT = int(os.environ.get('SEND_FILE_MAX_AGE_DEFAULT', 0 if DEBUG else 3600))
     CUSTOMER_GROUPS = [10, 15, 20, 30, 40]
     CUSTOMER_GROUPS_ALL = [1] + CUSTOMER_GROUPS  # Group 1 is hidden but active
+
+    # Image Upload
+    ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'}
+    MAX_IMAGE_SIZE_BYTES = 100 * 1024  # 100 KB

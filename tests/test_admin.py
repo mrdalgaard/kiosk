@@ -178,6 +178,57 @@ def test_image_upload(logged_in_client):
         assert response.status_code == 302
         assert '/admin/images' in response.headers['Location']
 
+def test_image_upload_rejected_extension(logged_in_client):
+    """Test uploading a file with a disallowed extension is rejected."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    import io
+    data = {
+        'imagefile': (io.BytesIO(b"not an image"), 'malware.exe')
+    }
+    response = logged_in_client.post('/admin/images/upload', data=data, content_type='multipart/form-data')
+    assert response.status_code == 302
+    assert '/admin/images' in response.headers['Location']
+
+def test_image_upload_rejected_too_large(logged_in_client):
+    """Test uploading a file larger than 100KB is rejected."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    import io
+    oversized_content = b"x" * (101 * 1024)  # 101 KB
+    data = {
+        'imagefile': (io.BytesIO(oversized_content), 'large.png')
+    }
+    with patch('werkzeug.datastructures.FileStorage.save'):
+        response = logged_in_client.post('/admin/images/upload', data=data, content_type='multipart/form-data')
+    assert response.status_code == 302
+    assert '/admin/images' in response.headers['Location']
+
+def test_product_upload_rejected_extension(logged_in_client):
+    """Test adding a product with a disallowed image extension is rejected."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin._get_available_images', return_value=['img.jpg']):
+        import io
+        data = {
+            'productname': 'Bad Product',
+            'itemprice': '20.00',
+            'sorting': '50',
+            'disabled': 'off',
+            'imagefile': (io.BytesIO(b"not an image"), 'file.pdf')
+        }
+        response = logged_in_client.post('/admin/products/new', data=data, content_type='multipart/form-data')
+        assert response.status_code == 200  # Re-renders form with error
+
 def test_image_delete_success(logged_in_client):
     """Test deleting an image not used by products."""
     with logged_in_client.session_transaction() as sess:

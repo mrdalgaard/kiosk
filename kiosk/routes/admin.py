@@ -7,6 +7,26 @@ from werkzeug.utils import secure_filename
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+def _validate_image(file_storage):
+    """Validate an uploaded image file. Returns (ok, error_message)."""
+    allowed = current_app.config['ALLOWED_IMAGE_EXTENSIONS']
+    max_size = current_app.config['MAX_IMAGE_SIZE_BYTES']
+
+    filename = file_storage.filename or ''
+    ext = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    if ext not in allowed:
+        allowed_str = ', '.join(sorted(allowed))
+        return False, f"Filtypen '.{ext}' er ikke tilladt. Tilladte: {allowed_str}"
+    
+    file_storage.seek(0, 2)  # seek to end
+    size = file_storage.tell()
+    file_storage.seek(0)     # reset to start
+    if size > max_size:
+        max_kb = max_size // 1024
+        return False, f"Filen er for stor ({size // 1024} KB). Maks: {max_kb} KB."
+    
+    return True, None
+
 def admin_required(f):
     from functools import wraps
     @wraps(f)
@@ -74,6 +94,10 @@ def image_gallery():
 def image_upload():
     image_file = request.files.get('imagefile')
     if image_file and image_file.filename:
+        ok, error = _validate_image(image_file)
+        if not ok:
+            flash(error)
+            return redirect(url_for('admin.image_gallery'))
         filename = secure_filename(image_file.filename)
         save_path = os.path.join(current_app.root_path, 'static', 'images', filename)
         image_file.save(save_path)
@@ -185,6 +209,11 @@ def _handle_product_save(product_id=None):
     image_file = request.files.get('imagefile')
     
     if image_file and image_file.filename:
+        ok, error = _validate_image(image_file)
+        if not ok:
+            flash(error)
+            images = _get_available_images()
+            return render_template('admin/product_form.html', product=request.form, images=images)
         image_filename = secure_filename(image_file.filename)
         save_path = os.path.join(current_app.root_path, 'static', 'images', image_filename)
         image_file.save(save_path)
