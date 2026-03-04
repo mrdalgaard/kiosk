@@ -31,7 +31,7 @@ def index():
         current_app.logger.error(f"Database error on index: {e}")
         return render_template('index.html', customername=customername, products=[], purchasehistory=[], greenteam=False, cart={}, error='Systemfejl: Kunne ikke forbinde til databasen.')
 
-@bp.route('/add_to_cart/<int:productid>')
+@bp.route('/add_to_cart/<int:productid>', methods=['POST'])
 @login_required
 def add_to_cart(productid):
     try:
@@ -54,7 +54,7 @@ def add_to_cart(productid):
         return render_template('partials/cart_table.html', cart=session.get('cart', {}))
     return redirect(url_for('main.index'))
 
-@bp.route('/remove_from_cart/<int:productid>')
+@bp.route('/remove_from_cart/<int:productid>', methods=['POST'])
 @login_required
 def remove_from_cart(productid):
     cart = session.get('cart', {})

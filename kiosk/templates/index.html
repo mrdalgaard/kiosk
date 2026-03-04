@@ -127,6 +127,7 @@
             fetchUrl.searchParams.append('ajax', '1');
 
             fetch(fetchUrl, {
+                method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }

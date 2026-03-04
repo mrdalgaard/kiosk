@@ -117,7 +117,7 @@ class TestLoginRequired:
         assert '/' in response.headers['Location']
 
     def test_add_to_cart_redirects_when_not_logged_in(self, client):
-        response = client.get('/add_to_cart/1')
+        response = client.post('/add_to_cart/1')
         assert response.status_code == 302
 
     def test_checkout_redirects_when_not_logged_in(self, client):
@@ -184,7 +184,7 @@ class TestCart:
             mock_conn.cursor.return_value = mock_cursor
             mock_db.return_value = mock_conn
 
-            response = logged_in_client.get('/add_to_cart/1')
+            response = logged_in_client.post('/add_to_cart/1')
             assert response.status_code == 302
 
             with logged_in_client.session_transaction() as sess:
@@ -197,7 +197,7 @@ class TestCart:
                 '1': {'itemprice': Decimal('10.00'), 'productname': 'Kaffe', 'quantity': 1}
             }
 
-        response = logged_in_client.get('/add_to_cart/1')
+        response = logged_in_client.post('/add_to_cart/1')
         assert response.status_code == 302
 
         with logged_in_client.session_transaction() as sess:
@@ -207,7 +207,7 @@ class TestCart:
         with patch('kiosk.routes.main.get_db_connection') as mock_db:
             mock_db.side_effect = Exception('DB down')
 
-            response = logged_in_client.get('/add_to_cart/1')
+            response = logged_in_client.post('/add_to_cart/1')
             # Should redirect back to index even on error
             assert response.status_code == 302
 
@@ -222,7 +222,7 @@ class TestCartRemoval:
                 '1': {'itemprice': Decimal('10.00'), 'productname': 'Kaffe', 'quantity': 2}
             }
 
-        response = logged_in_client.get('/remove_from_cart/1')
+        response = logged_in_client.post('/remove_from_cart/1')
         assert response.status_code == 302
         assert '/index' in response.headers['Location']
 
@@ -235,18 +235,18 @@ class TestCartRemoval:
                 '1': {'itemprice': Decimal('10.00'), 'productname': 'Kaffe', 'quantity': 1}
             }
 
-        response = logged_in_client.get('/remove_from_cart/1')
+        response = logged_in_client.post('/remove_from_cart/1')
         assert response.status_code == 302
 
         with logged_in_client.session_transaction() as sess:
             assert '1' not in sess['cart']
 
     def test_remove_ignores_invalid_product(self, logged_in_client):
-        response = logged_in_client.get('/remove_from_cart/999')
+        response = logged_in_client.post('/remove_from_cart/999')
         assert response.status_code == 302
 
     def test_remove_redirects_when_not_logged_in(self, client):
-        response = client.get('/remove_from_cart/1')
+        response = client.post('/remove_from_cart/1')
         assert response.status_code == 302
 
 
