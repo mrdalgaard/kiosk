@@ -415,9 +415,9 @@ def section_delete(id):
             except Exception as update_err:
                 current_app.logger.error(f"Error disabling section {id}: {update_err}")
                 flash("Fejl ved deaktivering af område.")
-    except Exception as e:
-        current_app.logger.error(f"Error deleting section {id}: {e}")
-        flash("Fejl ved sletning af område.")
+        else:
+            current_app.logger.error(f"Error deleting section {id}: {e}")
+            flash("Fejl ved sletning af område.")
         
     return redirect(url_for('admin.section_list'))
 
