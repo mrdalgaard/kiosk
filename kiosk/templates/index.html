@@ -102,11 +102,17 @@
     document.addEventListener('DOMContentLoaded', function () {
         const productGrid = document.querySelector('.product-grid');
         if (productGrid) {
+            productGrid.addEventListener('pointerdown', function (e) {
+                if (e.button !== 0) return;
+                const card = e.target.closest('a.product-card');
+                if (card) {
+                    updateCart(card.href);
+                }
+            });
             productGrid.addEventListener('click', function (e) {
                 const card = e.target.closest('a.product-card');
                 if (card) {
                     e.preventDefault();
-                    updateCart(card.href);
                 }
             });
         }
