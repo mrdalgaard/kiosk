@@ -3,9 +3,15 @@ from ..database import get_db_connection
 import psycopg
 from psycopg import errors
 import os
+import time
+import threading
 from werkzeug.utils import secure_filename
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+# PIN brute-force protection: track failed attempts per IP
+_pin_attempts = {}  # {ip: (fail_count, last_fail_timestamp)}
+_pin_lock = threading.Lock()
 
 def _validate_image(file_storage):
     """Validate an uploaded image file. Returns (ok, error_message)."""
@@ -52,11 +58,28 @@ def admin_required(f):
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        ip = request.remote_addr or 'unknown'
+        max_attempts = current_app.config['ADMIN_PIN_MAX_ATTEMPTS']
+        lockout_seconds = current_app.config['ADMIN_PIN_LOCKOUT_SECONDS']
+
+        with _pin_lock:
+            fail_count, last_fail = _pin_attempts.get(ip, (0, 0))
+            # Reset counter if lockout period has passed
+            if fail_count >= max_attempts and (time.monotonic() - last_fail) >= lockout_seconds:
+                fail_count = 0
+            if fail_count >= max_attempts:
+                remaining = int(lockout_seconds - (time.monotonic() - last_fail))
+                return render_template('admin/login.html', error=f"For mange forsøg. Prøv igen om {remaining} sekunder.")
+
         pin = request.form.get('pin')
         if pin == current_app.config['ADMIN_PIN']:
+            with _pin_lock:
+                _pin_attempts.pop(ip, None)
             session['admin_authenticated'] = True
             return redirect(url_for('admin.product_list'))
         else:
+            with _pin_lock:
+                _pin_attempts[ip] = (fail_count + 1, time.monotonic())
             return render_template('admin/login.html', error="Forkert PIN kode")
     
     return render_template('admin/login.html')

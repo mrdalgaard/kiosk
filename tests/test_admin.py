@@ -41,6 +41,48 @@ def test_admin_pin_entry_failure(client, logged_in_client):
     assert response.status_code == 200
     assert b'Forkert PIN kode' in response.data
 
+def test_admin_pin_lockout_after_max_attempts(client, logged_in_client):
+    """Test that too many failed PIN attempts triggers a lockout."""
+    from kiosk.routes.admin import _pin_attempts, _pin_lock
+    # Clear any previous state
+    with _pin_lock:
+        _pin_attempts.clear()
+    
+    # Fail 5 times
+    for _ in range(5):
+        response = client.post('/admin/login', data={'pin': '0000'})
+        assert b'Forkert PIN kode' in response.data
+    
+    # 6th attempt should be locked out
+    response = client.post('/admin/login', data={'pin': '0000'})
+    assert response.status_code == 200
+    assert 'mange' in response.data.decode('utf-8')  # "For mange forsøg"
+    
+    # Cleanup
+    with _pin_lock:
+        _pin_attempts.clear()
+
+def test_admin_pin_lockout_resets_on_success(client, logged_in_client):
+    """Test that a successful login clears the failed attempt counter."""
+    from kiosk.routes.admin import _pin_attempts, _pin_lock
+    with _pin_lock:
+        _pin_attempts.clear()
+    
+    # Fail 3 times
+    for _ in range(3):
+        client.post('/admin/login', data={'pin': '0000'})
+    
+    # Succeed
+    client.post('/admin/login', data={'pin': '1234'})
+    
+    # Counter should be cleared
+    with _pin_lock:
+        ip_entry = _pin_attempts.get('127.0.0.1')
+    assert ip_entry is None
+    
+    with _pin_lock:
+        _pin_attempts.clear()
+
 def test_product_list(client, logged_in_client):
     """Test product list page loads (mock DB)."""
     # Authenticate first

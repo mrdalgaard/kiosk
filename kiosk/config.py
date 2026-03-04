@@ -30,6 +30,8 @@ class Config:
     # Admin Settings
     ADMIN_USER_IDS = [int(x) for x in os.environ.get('ADMIN_USER_IDS', '').split(',') if x.strip()]
     ADMIN_PIN = os.environ.get('ADMIN_PIN', '1234')  # Default PIN: 1234
+    ADMIN_PIN_MAX_ATTEMPTS = 5
+    ADMIN_PIN_LOCKOUT_SECONDS = 60
     
     # App Settings
     # Cache static files: 0s in dev, else fallback to 1 hour
