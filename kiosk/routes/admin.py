@@ -194,18 +194,18 @@ def product_edit(id):
 def product_delete(id):
     try:
         with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                # 1. Check if product is referenced in sales
-                curs.execute("SELECT COUNT(*) FROM sales WHERE productid = %s", (id,))
-                count = curs.fetchone()[0]
-                
-                if count > 0:
-                    flash(f"Produktet kan ikke slettes, da det er knyttet til {count} salg. Overvej at deaktivere det i stedet.")
-                    return redirect(url_for('admin.product_list'))
-                
-                # 2. Proceed with deletion
-                curs.execute("DELETE FROM products WHERE productid = %s", (id,))
-            conn.commit()
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    # 1. Check if product is referenced in sales
+                    curs.execute("SELECT COUNT(*) FROM sales WHERE productid = %s", (id,))
+                    count = curs.fetchone()[0]
+                    
+                    if count > 0:
+                        flash(f"Produktet kan ikke slettes, da det er knyttet til {count} salg. Overvej at deaktivere det i stedet.")
+                        return redirect(url_for('admin.product_list'))
+                    
+                    # 2. Proceed with deletion
+                    curs.execute("DELETE FROM products WHERE productid = %s", (id,))
             
         flash("Produkt slettet.")
     except Exception as e:
@@ -253,19 +253,19 @@ def _handle_product_save(product_id=None):
 
     try:
         with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                if product_id:
-                    curs.execute("""
-                        UPDATE products 
-                        SET productname=%s, itemprice=%s, imagefilename=%s, disabled=%s, sorting=%s
-                        WHERE productid=%s
-                    """, (productname, itemprice, image_filename, disabled, sorting, product_id))
-                else:
-                    curs.execute("""
-                        INSERT INTO products (productname, itemprice, imagefilename, disabled, sorting)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (productname, itemprice, image_filename, disabled, sorting))
-            conn.commit()
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    if product_id:
+                        curs.execute("""
+                            UPDATE products 
+                            SET productname=%s, itemprice=%s, imagefilename=%s, disabled=%s, sorting=%s
+                            WHERE productid=%s
+                        """, (productname, itemprice, image_filename, disabled, sorting, product_id))
+                    else:
+                        curs.execute("""
+                            INSERT INTO products (productname, itemprice, imagefilename, disabled, sorting)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (productname, itemprice, image_filename, disabled, sorting))
             
         flash("Produkt gemt.")
         return redirect(url_for('admin.product_list'))
@@ -319,9 +319,9 @@ def mowing_user_add():
         
     try:
         with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                curs.execute("INSERT INTO mowingusers (customerid) VALUES (%s)", (customer_id,))
-            conn.commit()
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    curs.execute("INSERT INTO mowingusers (customerid) VALUES (%s)", (customer_id,))
         flash("Medlem tilføjet til Greenteam.")
     except psycopg.errors.UniqueViolation:
          flash("Medlemmet er allerede i Greenteam.")
@@ -337,9 +337,9 @@ def mowing_user_add():
 def mowing_user_delete(id):
     try:
         with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                curs.execute("DELETE FROM mowingusers WHERE customerid = %s", (id,))
-            conn.commit()
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    curs.execute("DELETE FROM mowingusers WHERE customerid = %s", (id,))
         flash("Medlem fjernet fra Greenteam.")
     except Exception as e:
         current_app.logger.error(f"Error deleting greenteam member {id}: {e}")
@@ -408,9 +408,9 @@ def section_delete(id):
         if 'mowingactivities' in str(e) or 'foreign key' in str(e).lower() or getattr(e, 'sqlstate', None) == '23503':
             try:
                 with get_db_connection() as conn:
-                    with conn.cursor() as curs:
-                        curs.execute("UPDATE mowingsections SET disabled = true WHERE id = %s", (id,))
-                    conn.commit()
+                    with conn.transaction():
+                        with conn.cursor() as curs:
+                            curs.execute("UPDATE mowingsections SET disabled = true WHERE id = %s", (id,))
                 flash("Området kunne ikke slettes pga. klippehistorik. Det er i stedet blevet deaktiveret og skjult for brugerne.")
             except Exception as update_err:
                 current_app.logger.error(f"Error disabling section {id}: {update_err}")
@@ -429,19 +429,19 @@ def _handle_section_save(section_id=None):
     try:
         cutting_time = float(cutting_time)
         with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                if section_id:
-                    curs.execute("""
-                        UPDATE mowingsections 
-                        SET section_name=%s, cutting_time_in_h=%s, disabled=%s
-                        WHERE id=%s
-                    """, (section_name, cutting_time, disabled, section_id))
-                else:
-                    curs.execute("""
-                        INSERT INTO mowingsections (section_name, cutting_time_in_h, disabled)
-                        VALUES (%s, %s, %s)
-                    """, (section_name, cutting_time, disabled))
-            conn.commit()
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    if section_id:
+                        curs.execute("""
+                            UPDATE mowingsections 
+                            SET section_name=%s, cutting_time_in_h=%s, disabled=%s
+                            WHERE id=%s
+                        """, (section_name, cutting_time, disabled, section_id))
+                    else:
+                        curs.execute("""
+                            INSERT INTO mowingsections (section_name, cutting_time_in_h, disabled)
+                            VALUES (%s, %s, %s)
+                        """, (section_name, cutting_time, disabled))
             
         flash("Område gemt.")
         return redirect(url_for('admin.section_list'))
@@ -523,19 +523,19 @@ def _handle_maintenance_save(maintenance_id=None):
     try:
         interval_h = float(interval_h)
         with get_db_connection() as conn:
-            with conn.cursor() as curs:
-                if maintenance_id:
-                    curs.execute("""
-                        UPDATE mowingmaintenance 
-                        SET maintenance_type=%s, interval_h=%s
-                        WHERE id=%s
-                    """, (maintenance_type, interval_h, maintenance_id))
-                else:
-                    curs.execute("""
-                        INSERT INTO mowingmaintenance (maintenance_type, interval_h)
-                        VALUES (%s, %s)
-                    """, (maintenance_type, interval_h))
-            conn.commit()
+            with conn.transaction():
+                with conn.cursor() as curs:
+                    if maintenance_id:
+                        curs.execute("""
+                            UPDATE mowingmaintenance 
+                            SET maintenance_type=%s, interval_h=%s
+                            WHERE id=%s
+                        """, (maintenance_type, interval_h, maintenance_id))
+                    else:
+                        curs.execute("""
+                            INSERT INTO mowingmaintenance (maintenance_type, interval_h)
+                            VALUES (%s, %s)
+                        """, (maintenance_type, interval_h))
             
         flash("Opgave gemt.")
         return redirect(url_for('admin.maintenance_list'))
