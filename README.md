@@ -75,6 +75,25 @@ cat scripts/setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KioskPOS -
 
 Kiosk: `http://localhost:5000` · Public status: `http://localhost:5001`
 
+## e-conomic Integration
+
+Applikationen integrerer med [e-conomic](https://www.e-conomic.dk/) REST API til automatisk bogføring af salg og synkronisering af kundelisten.
+
+### Opsætning af API-adgang
+1. Log ind på [e-conomic Developer](https://secure.e-conomic.com/developer).
+2. Opret en ny app (eller brug en eksisterende) — dette giver dig en **App Secret Token**.
+3. Under den oprettede app, tilknyt den til dit e-conomic-agreement — dette genererer en **Agreement Grant Token**.
+4. Angiv begge tokens i `.env`:
+```env
+ECO_GRANT_TOKEN=dit_grant_token
+ECO_SECRET_TOKEN=dit_secret_token
+ECO_PRODUCT_ID=8000
+```
+`ECO_PRODUCT_ID` skal matche det produktnummer i e-conomic, som bruges til at bogføre salgslinjer.
+
+### Brugersynkronisering
+Applikationen synkroniserer også automatisk kundelisten fra e-conomic. Kunder hentes baseret på konfigurerede kundegrupper (`CUSTOMER_GROUPS` i `config.py`) og upserted i den lokale database. Kunder der fjernes fra e-conomic markeres som slettet lokalt.
+
 ### Lokal kørsel uden Docker
 ```bash
 python kiosk/run.py 5010
