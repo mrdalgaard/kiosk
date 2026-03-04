@@ -4,6 +4,8 @@ import datetime
 from flask import Flask, render_template
 import psycopg
 from psycopg.rows import dict_row
+from psycopg.conninfo import make_conninfo
+from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
 
 # Load environment variables explicitly from .env.public in the root directory
@@ -12,7 +14,7 @@ load_dotenv(env_path)
 
 app = Flask(__name__)
 
-# Fetch database credentials from environment variables (identical to main app)
+# Fetch database credentials from environment variables
 DB_HOST = os.environ.get('DB_HOST', 'postgres')
 DB_PORT = os.environ.get('DB_PORT', '5432')
 DB_NAME = os.environ.get('POSTGRES_DB', os.environ.get('DB_NAME', 'KioskPOS'))
@@ -22,14 +24,17 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD')
 if not DB_PASSWORD:
     raise ValueError("No DB_PASSWORD set for Public Flask application")
 
+conninfo = make_conninfo(
+    host=DB_HOST,
+    port=DB_PORT,
+    dbname=DB_NAME,
+    user=DB_USER,
+    password=DB_PASSWORD
+)
+pool = ConnectionPool(conninfo, reconnect_timeout=2, timeout=5.0)
+
 def get_db_connection():
-    return psycopg.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD
-    )
+    return pool.connection()
 
 def get_maintenance_items(curs):
     curs.execute("SELECT * FROM maintenancestatus")
