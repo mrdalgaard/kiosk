@@ -82,7 +82,7 @@ Applikationen integrerer med [e-conomic](https://www.e-conomic.dk/) REST API til
 ### Opsætning af API-adgang
 1. Log ind på [e-conomic Developer](https://secure.e-conomic.com/developer).
 2. Opret en ny app (eller brug en eksisterende) — dette giver dig en **App Secret Token**.
-3. Under den oprettede app, tilknyt den til dit e-conomic-agreement — dette genererer en **Agreement Grant Token**.
+3. Under den oprettede app, tilknyt den til dit e-conomic-agreement — dette genererer en **Agreement Grant Token**. Se https://www.e-conomic.com/developer/connect for mere information.
 4. Angiv begge tokens i `.env`:
 ```env
 ECO_GRANT_TOKEN=dit_grant_token
