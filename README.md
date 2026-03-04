@@ -43,9 +43,8 @@ En webbaseret PWA designet til at køre fuldskærm på en 10" tablet i klubbens 
 ### 1. Klargør miljøvariabler
 ```bash
 cp .env.example .env
-cp .env.public.example .env.public
 ```
-Tilpas databaseadgangskoder og session keys i `.env` efter behov.
+Tilpas databaseadgangskoder og session keys i `.env` efter behov. `.env.public` genereres automatisk af setup-scriptet i trin 4.
 
 ### 2. Konfigurer Docker Compose
 Kopiér og tilpas `compose.yaml` ud fra eksempelfilen:
@@ -68,9 +67,10 @@ Applikationen opretter automatisk tabeller og views. Indsæt testdata:
 docker exec -i kiosk-db-1 psql -U KioskPOS -d KioskPOS < scripts/seed-testdata.sql
 ```
 
-Opret read-only databasebruger til den offentlige app:
+Opret read-only databasebruger og `.env.public` til den offentlige app (kræver at main app kører):
 ```bash
 ./scripts/setup_public_user.sh
+docker compose restart public_app
 ```
 
 Kiosk: `http://localhost:5000` · Public status: `http://localhost:5001`
