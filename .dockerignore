@@ -40,12 +40,22 @@ htmlcov/
 
 # Docker
 compose.yaml
+compose.example.yaml
 .dockerignore
 Dockerfile
+Dockerfile.public
+
+# Project files not needed at runtime
+README.md
+LICENSE
+*.md
+scripts/
+data/
+.agents/
+.env*
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-

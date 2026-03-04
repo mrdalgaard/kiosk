@@ -14,7 +14,10 @@ RUN apk add --no-cache curl su-exec
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
-COPY . .
+# Copy only what this app needs
+COPY kiosk/ kiosk/
+COPY tests/ tests/
+COPY public_status/ public_status/
 
 # Copy entrypoint script and make sure it has execute permissions
 COPY kiosk/docker-entrypoint.sh /usr/local/bin/

@@ -1,13 +1,7 @@
 import pytest
-import sys
-import os
 from unittest.mock import MagicMock
 
-# Add public_status to import path to be able to import app
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../public_status')))
-
-# Now we can import the public app
-from app import app as public_app
+from public_status.app import app as public_app
 
 @pytest.fixture
 def public_client():
@@ -34,7 +28,7 @@ def test_public_status_index(public_client, monkeypatch):
     # Handle the "with get_db_connection() as conn"
     mock_conn.__enter__.return_value = mock_conn
     
-    monkeypatch.setattr('app.get_db_connection', lambda: mock_conn)
+    monkeypatch.setattr('public_status.app.get_db_connection', lambda: mock_conn)
     
     response = public_client.get('/')
     assert response.status_code == 200

@@ -14,7 +14,8 @@ RUN apk add --no-cache curl
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
-COPY . .
+# Copy only what this app needs
+COPY public_status/ public_status/
 
 # Ensure appuser owns everything
 RUN chown -R appuser:appuser /app
