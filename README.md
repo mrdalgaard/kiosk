@@ -1,85 +1,92 @@
 # AASvK Kiosk System
 
-AASvK Kiosk System er en webbaseret applikation, specielt designet til at køre fuldskærm på en 10" tablet i klubbens lokaler. Systemet er udviklet med to primære formål:
-1. **Kiosk**: At gøre det hurtigt, nemt og enkelt for klubbens medlemmer at købe varer.
-2. **Greenteam**: At tilbyde en overskuelig løsning til at registrere græsklipning og tracke vedligehold af maskinparken.
+En webbaseret PWA designet til at køre fuldskærm på en 10" tablet i klubbens lokaler.
 
 ## Funktioner
 
-- **Hurtigt Køb**: En intuitiv brugergrænseflade designet specielt til touchskærme. Medlemmer kan tilføje og fjerne varer til en indkøbskurv asynkront uden at siden genindlæses, og gennemføre køb på få sekunder.
-- **Græsklipning**: Registrering af hvilke sektioner og hvor meget græs, der er klippet.
-- **Maskinvedligehold**: Dynamisk system til at beregne driftstimer på udstyrsdele (f.eks. kraftoverføringsaksler og smørepunkter). Systemet giver et letlæseligt visuelt overblik, advarer når service er påkrævet, og understøtter både hurtige skiftedage og timetal, der går i minus.
-- **Admin Panel**: Administratorer kan håndtere brugere, produkter, opdatere priser og overvåge logbøger og vedligeholdelsesintervaller.
+### Kiosk
+- Intuitiv touchvenlig brugergrænseflade til hurtige varekøb.
+- Asynkron indkøbskurv — tilføj og fjern varer uden sideopdatering.
+- Købshistorik pr. medlem.
+- Admin panel til håndtering af brugere, produkter og priser.
+
+### Greenteam
+- Registrering af græsklipning pr. sektion.
+- Dynamisk beregning af driftstimer og vedligeholdelsesintervaller.
+- Visuel advarsel når service er påkrævet.
+- Offentlig read-only statusside (separat app, port 5001).
 
 ## Teknisk Stack
 
-- **Backend**: Python 3.x med [Flask](https://flask.palletsprojects.com/) frameworket.
-- **Database**: PostgreSQL til robust datalagring, integreret via `psycopg`.
-- **Frontend**: HTML5, Vanilla JavaScript, og Vanilla CSS for at sikre maksimal hastighed uden unødvendige afhængigheder. Responsivt kodet mod tablets.
-- **Containerisering**: Docker og Docker Compose til at styre applikationens og databasens miljøkonfigurationer.
+| Komponent | Teknologi |
+|---|---|
+| Backend | Python / Flask |
+| Database | PostgreSQL via `psycopg` |
+| Frontend | HTML5, Vanilla JS, Vanilla CSS |
+| Container | Docker / Docker Compose |
 
-## Opsætning og Kørsel (Lokal Udvikling & Produktion)
+## Projektstruktur
 
-Applikationen er bygget til at blive afviklet via Docker, hvilket sikrer, at alt kører ens uanset host-maskinen.
+```
+├── Dockerfile              # Kiosk app
+├── Dockerfile.public       # Public status app
+├── compose.yaml
+├── kiosk/                  # Hovedapplikation
+├── public_status/          # Read-only statusside
+├── scripts/                # SQL seeds, migrationer, test-script
+├── tests/                  # pytest test suite
+└── data/images/            # Produktbilleder (volume mount)
+```
 
-### 1. Klargøring af miljø
-Start med at opsætte dine miljøvariabler:
+## Opsætning
+
+### 1. Klargør miljøvariabler
 ```bash
 cp .env.example .env
+cp .env.public.example .env.public
 ```
-Åbn `.env` filen og tilpas databaseadgangskoder og session keys, hvis det er nødvendigt.
+Tilpas databaseadgangskoder og session keys i `.env` efter behov.
 
-### 2. Start applikationen
-For at bygge og starte applikationen bruges Docker Compose:
+### 2. Konfigurer Docker Compose
+Kopiér og tilpas `compose.yaml` ud fra eksempelfilen:
+```bash
+cp compose.example.yaml compose.yaml
+```
+Filen indeholder følgende valgfrie sektioner, som kan aktiveres ved at fjerne kommentarerne (`#`):
+- **`public_app`** — Read-only offentlig statusside (port 5001). Kræver `.env.public`.
+- **`db`** — Lokal PostgreSQL-instans. Udelad hvis du bruger en ekstern database.
+- **`depends_on: db`** — under `app`-sektionen. Aktiver hvis `db`-servicen bruges.
+
+### 3. Start applikationen
 ```bash
 docker compose up -d --build
 ```
 
-### 3. Første kørsel (Database Setup)
-Når containerne kører, vil applikationen automatisk oprette databasestrukturen (tabeller og views). Du skal dog indsætte startdata (seed data for produkter og vedligeholdsintervaller).
-
-Indsæt standard data (kun til lokal test):
+### 4. Første kørsel (Database)
+Applikationen opretter automatisk tabeller og views. Indsæt testdata:
 ```bash
-docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS < scripts/seed-testdata.sql
+docker exec -i kiosk-db-1 psql -U KioskPOS -d KioskPOS < scripts/seed-testdata.sql
 ```
 
-Systemet er nu tilgængeligt i browseren på: `http://localhost:5000`
-
-### 4. Public App (Read-Only)
-Der er tilføjet en separat public status app (`kiosk-public`) som standard er konfigureret til port 5001. Denne instans kræver ikke login, og giver udelukkende en læseadgang (read-only) for øget sikkerhed. Processen er:
-
-1. Opret en adskilt miljøfil (som du kan tilpasse med ny adgangskode efter eget valg for den offentlige adgang):
+Opret read-only databasebruger til den offentlige app:
 ```bash
-cp .env.public.example .env.public
+cat scripts/setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KioskPOS -d KioskPOS
 ```
 
-2. Skab den specifikke read-only bruger i databasen:
-```bash
-cat scripts/setup_public_user.sql | docker exec -i kiosk-db-1 psql -U KantinePOS -d KantinePOS
-```
+Kiosk: `http://localhost:5000` · Public status: `http://localhost:5001`
 
-3. Aktiver i Docker Compose:
-Sørg for at fjerne kommentarerne (`#`) ud for `public_app`-sektionen i din `compose.yaml` fil (se `compose.example.yaml` for reference), hvorefter du kører `docker compose up -d`. Public applikationen er derefter tilgængelig på: `http://localhost:5001`
-
-### Lokal kørsel udenfor Docker
-Både den primære kiosk-app og public-appen kan køres direkte lokalt (ved f.eks. test og udvikling). Begge apps indlæser nu automatisk henholdsvis deres `.env` og `.env.public` filer.
-For at undgå port-konflikter kan du angive en specifik port som det første argument:
+### Lokal kørsel uden Docker
 ```bash
 python kiosk/run.py 5010
 python public_status/app.py 5011
 ```
 
-## Fejlfinding (Troubleshooting)
-
-* **Ændringer afspejles ikke**: Hvis du har lavet ændringer i koden lokalt, kræver genstart af applikationen ofte, at containeren genbygges for at de nye filer inkluderes: `docker compose up --build -d`.
-* **Database Migrationer**: Hvis en kolonne tilføjes i et nyt commit, sikr dig at de eksisterende tabeller er afstemt, eller i værste fald kør `docker compose down -v` for at nulstille databasen og derefter starte på ny med trin 3 (Bemærk, at en `-v` sletter al produktionsdata).
-
 ## Tests
-
-Projektet bruger `pytest` til at validere applikationens logik, databasereturneringer og frontend-komponenter.
-
-En scripts-fil er inkluderet for nemt at køre testpakken internt i Docker-containeren under de helt korrekte forudsætninger. 
-For at køre samtlige tests, brug:
 ```bash
 ./scripts/run_tests.sh
 ```
+
+## Fejlfinding
+
+- **Kodeændringer vises ikke?** Genbyg containeren: `docker compose up --build -d`
+- **Databaseændringer?** Nulstil med `docker compose down -v` og kør seed igen (sletter al data).
