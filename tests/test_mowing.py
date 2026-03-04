@@ -93,7 +93,7 @@ def test_mowing_status(logged_in_client):
         # mock second query (last_mowed)
         last_mowed = [{'days': 2, 'customername': 'Test User', 'section_name': 'Hul 1'}]
         # mock third query (maintenance)
-        maintenance = [{'id': 1, 'maintenance_type': 'Test Maintenance', 'interval_h': 100, 'used_h': 110.0}]
+        maintenance = [{'id': 1, 'maintenance_type': 'Test Maintenance', 'interval_h': 100, 'used_h': 110.0, 'remaining_h': -10.0}]
         
         mock_curs.fetchall.side_effect = [history, last_mowed, maintenance]
 
@@ -110,7 +110,7 @@ def test_mowing_maintenance_get(logged_in_client):
         mock_curs = MagicMock()
         mock_curs.fetchall.return_value = [
             {'id': 1, 'maintenance_type': 'Test Maintenance', 'interval_h': 100, 
-             'last_maintained_timestamp': '2026-02-21', 'maintained_by': 'AdminUser', 'used_h': 10.5}
+             'last_maintained_timestamp': '2026-02-21', 'maintained_by': 'AdminUser', 'used_h': 10.5, 'remaining_h': 89.5}
         ]
         mock_conn.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_curs

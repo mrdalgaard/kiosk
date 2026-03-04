@@ -32,29 +32,8 @@ def get_db_connection():
     )
 
 def get_maintenance_items(curs):
-    curs.execute("""
-        SELECT 
-            m.id, 
-            m.maintenance_type, 
-            m.interval_h, 
-            m.last_maintained_timestamp,
-            c.customername as maintained_by,
-            COALESCE(SUM(
-                s.cutting_time_in_h * 
-                CAST(SPLIT_PART(a.status, '/', 1) AS FLOAT) / 
-                CAST(COALESCE(NULLIF(SPLIT_PART(a.status, '/', 2), ''), '8') AS FLOAT)
-            ), 0) as used_h
-        FROM mowingmaintenance m
-        LEFT JOIN mowingactivities a ON a.timestamp > m.last_maintained_timestamp
-        LEFT JOIN mowingsections s ON a.section_id = s.id AND a.status != 'NotMowed'
-        LEFT JOIN customers c ON m.user_id = c.customerid
-        GROUP BY m.id, m.maintenance_type, m.interval_h, m.last_maintained_timestamp, c.customername
-        ORDER BY m.id
-    """)
-    items = curs.fetchall()
-    for item in items:
-        item['remaining_h'] = item['interval_h'] - item['used_h']
-    return items
+    curs.execute("SELECT * FROM maintenancestatus")
+    return curs.fetchall()
 
 @app.route('/')
 def mowing_status():

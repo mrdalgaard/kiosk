@@ -164,3 +164,26 @@ CREATE OR REPLACE VIEW public.mowinghistory AS
      JOIN mowingsections s ON m.section_id = s.id
      JOIN customers c ON m.user_id = c.customerid
   ORDER BY m.id DESC;
+
+CREATE OR REPLACE VIEW public.maintenancestatus AS
+ SELECT m.id,
+    m.maintenance_type,
+    m.interval_h,
+    m.last_maintained_timestamp,
+    c.customername AS maintained_by,
+    COALESCE(SUM(
+        s.cutting_time_in_h *
+        CAST(SPLIT_PART(a.status, '/', 1) AS FLOAT) /
+        CAST(COALESCE(NULLIF(SPLIT_PART(a.status, '/', 2), ''), '8') AS FLOAT)
+    ), 0) AS used_h,
+    m.interval_h - COALESCE(SUM(
+        s.cutting_time_in_h *
+        CAST(SPLIT_PART(a.status, '/', 1) AS FLOAT) /
+        CAST(COALESCE(NULLIF(SPLIT_PART(a.status, '/', 2), ''), '8') AS FLOAT)
+    ), 0) AS remaining_h
+   FROM mowingmaintenance m
+     LEFT JOIN mowingactivities a ON a.timestamp > m.last_maintained_timestamp
+     LEFT JOIN mowingsections s ON a.section_id = s.id AND a.status != 'NotMowed'
+     LEFT JOIN customers c ON m.user_id = c.customerid
+  GROUP BY m.id, m.maintenance_type, m.interval_h, m.last_maintained_timestamp, c.customername
+  ORDER BY m.id;
