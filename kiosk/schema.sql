@@ -1,5 +1,12 @@
 -- Tables
 
+CREATE TABLE IF NOT EXISTS public.schema_migrations
+(
+    id SERIAL PRIMARY KEY,
+    version VARCHAR(255) NOT NULL UNIQUE,
+    applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS public.customers
 (
     customerid integer NOT NULL,

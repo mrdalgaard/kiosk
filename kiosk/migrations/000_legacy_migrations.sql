@@ -1,22 +1,27 @@
 -- Kiosk Database Migration Script
--- Version: General Database Migrations
--- 
--- Description: Contains pending database migrations to be run manually.
+-- Version: Initial Pending Migrations
+-- Description: Applies pending tweaks for legacy installs. This script is designed to be idempotent.
 
 BEGIN;
 
--- 1. Rename the existing "date" column to "timestamp" and cast it
--- We cast the existing dates (e.g. '2026-02-21') to timestamps at midnight ('2026-02-21 00:00:00')
-ALTER TABLE public.mowingactivities 
-RENAME COLUMN "date" TO "timestamp";
-
-ALTER TABLE public.mowingactivities
-ALTER COLUMN "timestamp" TYPE timestamp with time zone 
-USING "timestamp"::timestamp with time zone;
+DO $$ 
+BEGIN
+    -- 1. Rename the existing "date" column to "timestamp" and cast it
+    -- Only do this if the column actually exists (legacy database)
+    IF EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+          AND table_name = 'mowingactivities' 
+          AND column_name = 'date'
+    ) THEN
+        ALTER TABLE public.mowingactivities RENAME COLUMN "date" TO "timestamp";
+        ALTER TABLE public.mowingactivities ALTER COLUMN "timestamp" TYPE timestamp with time zone USING "timestamp"::timestamp with time zone;
+    END IF;
+END $$;
 
 -- Update the default value for future inserts to use the current time
-ALTER TABLE public.mowingactivities
-ALTER COLUMN "timestamp" SET DEFAULT now();
+ALTER TABLE public.mowingactivities ALTER COLUMN "timestamp" SET DEFAULT now();
 
 -- 2. Create the mowingmaintenance table linking to customers
 CREATE TABLE IF NOT EXISTS public.mowingmaintenance

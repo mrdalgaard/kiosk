@@ -5,8 +5,9 @@ from kiosk.database import init_db_schema
 def test_init_db_schema(app):
     """Test schema initialization logic."""
     
-    # Mock file existence and content
+    # Mock file existence, directory listing, and content
     with patch('os.path.exists', return_value=True), \
+         patch('os.listdir', return_value=[]), \
          patch('builtins.open', mock_open(read_data="CREATE TABLE test;")):
          
         with patch('kiosk.database.get_db_connection') as mock_get_conn:
@@ -20,7 +21,7 @@ def test_init_db_schema(app):
             init_db_schema(app)
             
             # Verify SQL execution
-            mock_curs.execute.assert_called_with("CREATE TABLE test;")
+            mock_curs.execute.assert_any_call("CREATE TABLE test;")
             mock_conn.commit.assert_called()
 
 def test_init_db_schema_missing_file(app):
