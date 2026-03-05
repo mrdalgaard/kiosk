@@ -19,3 +19,4 @@ data/images/*
 .agents/
 
 venv/
+.env.public
