@@ -34,7 +34,8 @@ services:
 #    volumes:
 #      - /etc/localtime:/etc/localtime:ro
 #    env_file:
-#      - .env.public
+#      - path: .env.public
+#        required: false
 #    environment:
 #      - TZ=${TIMEZONE:-Europe/Copenhagen}
 #    restart: unless-stopped
@@ -57,7 +58,7 @@ services:
 #      - POSTGRES_USER=${DB_USER:-KioskPOS}
 #      - POSTGRES_PASSWORD=${DB_PASSWORD}
 #    volumes:
-#      - db_data:/var/lib/postgresql/data
+#      - db_data:/var/lib/postgresql/
 
 #volumes:
 #  db_data:

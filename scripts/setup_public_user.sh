@@ -106,4 +106,4 @@ DB_PASSWORD=${PUBLIC_PASSWORD}
 EOF
 
 echo "Created $ENV_PUBLIC"
-echo "Done. Restart the public_app container to apply: docker compose restart public_app"
+echo "Done. Restart the public_app container to apply: docker compose up -d public_app"

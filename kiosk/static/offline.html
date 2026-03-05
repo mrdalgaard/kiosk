@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="da" translate="no">
+
+<head>
+    <title>AASvK Kantine - Offline</title>
+    <link rel="stylesheet" type="text/css" href="/static/app.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="google" content="notranslate" />
+    <link rel="manifest" href="/static/manifest.json">
+</head>
+
+<body>
+    <div class="app-container" style="justify-content: center; align-items: center;">
+        <div class="panel" style="max-width: 600px; width: 100%; text-align: center; padding: 3rem;">
+            <div class="brand-header" style="border-bottom: none; margin-bottom: 2rem;">
+                <h1 style="color: var(--danger-red); font-size: 3rem; margin-bottom: 1rem;">Ingen forbindelse</h1>
+                <h2 style="color: var(--text-dark); font-size: 1.5rem;">Kiosken har mistet forbindelsen til netværket.
+                </h2>
+            </div>
+
+            <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 3rem; line-height: 1.5;">
+                Vent et øjeblik mens tabletten forsøger at genoprette forbindelsen.
+                Hvis problemet fortsætter, kontakt venligst en administrator.
+            </p>
+
+
+
+            <!-- Logo Watermark -->
+            <img class="brand-watermark" src="/static/logo.png" alt="AaSvK Logo" style="opacity: 0.08;">
+        </div>
+    </div>
+
+    <script>
+        function checkNetworkAndRedirect() {
+            if (navigator.onLine) {
+                // Perform a small HEAD request to bypass any cache and verify true connectivity
+                fetch('/?ping=' + new Date().getTime(), { method: 'HEAD', cache: 'no-store' })
+                    .then(function (response) {
+                        if (response.ok) {
+                            // Network is restored! Navigate to /logout to clear the stalled session 
+                            // and redirect safely back to the login screen.
+                            window.location.href = '/logout';
+                        }
+                    })
+                    .catch(function (error) {
+                        // Still offline
+                    });
+            }
+        }
+
+        // Check every 3 seconds
+        setInterval(checkNetworkAndRedirect, 3000);
+
+        // Instantly trigger check when browser detects network reconnection
+        window.addEventListener('online', checkNetworkAndRedirect);
+    </script>
+</body>
+
+</html>

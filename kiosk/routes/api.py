@@ -1,5 +1,5 @@
 
-from flask import Blueprint, render_template, jsonify, current_app
+from flask import Blueprint, render_template, jsonify, current_app, send_from_directory
 from ..database import get_db_connection
 from ..config import Config
 import psycopg
@@ -36,3 +36,10 @@ def health_check():
     except Exception as e:
         # If DB is down, pool.connection() throws an error
         return jsonify({'status': 'unhealthy', 'reason': str(e)}), 500
+
+@bp.route('/service-worker.js')
+def service_worker():
+    response = send_from_directory(current_app.static_folder, 'service-worker.js', mimetype='application/javascript')
+    # Prevent caching of the service worker itself
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
