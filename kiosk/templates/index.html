@@ -99,30 +99,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         const productGrid = document.querySelector('.product-grid');
         if (productGrid) {
-            productGrid.addEventListener('pointerdown', function (e) {
-                if (e.pointerType === 'mouse' && e.button !== 0) return;
-                const card = e.target.closest('a.product-card');
-                if (card && !card.classList.contains('pressed')) {
-                    card.classList.add('pressed');
-                    try { card.setPointerCapture(e.pointerId); } catch (err) { }
-                    updateCart(card.href);
-                }
-            });
-
-            const releasePointer = function (e) {
-                const card = e.target.closest('a.product-card');
-                if (card && card.classList.contains('pressed')) {
-                    setTimeout(() => card.classList.remove('pressed'), 100);
-                    try { card.releasePointerCapture(e.pointerId); } catch (err) { }
-                }
-            };
-
-            productGrid.addEventListener('pointerup', releasePointer);
-            productGrid.addEventListener('pointercancel', releasePointer);
             productGrid.addEventListener('click', function (e) {
                 const card = e.target.closest('a.product-card');
                 if (card) {
                     e.preventDefault();
+                    updateCart(card.href);
                 }
             });
         }
