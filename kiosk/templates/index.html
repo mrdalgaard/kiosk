@@ -84,11 +84,8 @@
                 </form>
             </div>
             <div style="width: 100%; height: 5rem; margin-top: 0.5rem;">
-                <form method="post" action="{{ url_for('main.checkout') }}" class="util-form" style="height: 100%;">
-                    <button class="action-btn submit-btn" {% if not cart %} type="button"
-                        onclick="showToast('Kurven er tom', 'error');" {% else %} type="submit"
-                        onClick="this.form.submit(); this.disabled=true;" {% endif %}
-                        style="font-size: 1.75rem;">Køb</button>
+                <form id="checkout-form" method="post" action="{{ url_for('main.checkout') }}" class="util-form" style="height: 100%;">
+                    <button id="checkout-btn" class="action-btn submit-btn" type="submit" style="font-size: 1.75rem;">Køb</button>
                 </form>
             </div>
         </div>
@@ -157,7 +154,6 @@
                 })
                 .then(html => {
                     document.getElementById('cart-tbody').innerHTML = html;
-                    updateCheckoutButton();
                 })
                 .catch(error => {
                     console.error('Error updating cart:', error);
@@ -165,21 +161,22 @@
                 });
         }
 
-        function updateCheckoutButton() {
-            const tbody = document.getElementById('cart-tbody');
-            const isEmpty = tbody.querySelector('.empty-state') !== null;
+        const checkoutForm = document.getElementById('checkout-form');
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', function (e) {
+                const tbody = document.getElementById('cart-tbody');
+                const isEmpty = tbody.querySelector('.empty-state') !== null;
 
-            const submitBtn = document.querySelector('.submit-btn');
-            if (submitBtn) {
-                // Need to update the generic onclick / type logic
                 if (isEmpty) {
-                    submitBtn.type = "button";
-                    submitBtn.onclick = function () { showToast('Kurven er tom', 'error'); };
+                    e.preventDefault();
+                    showToast('Kurven er tom', 'error');
                 } else {
-                    submitBtn.type = "submit";
-                    submitBtn.onclick = function () { this.form.submit(); this.disabled = true; };
+                    const submitBtn = document.getElementById('checkout-btn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                    }
                 }
-            }
+            });
         }
     });
 </script>
