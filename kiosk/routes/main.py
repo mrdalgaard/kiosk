@@ -47,6 +47,12 @@ def add_to_cart(productid):
         else:
             cart[str(productid)]['quantity'] += 1
         session['cart'] = cart
+        
+        # Maintain order
+        cart_order = session.get('cart_order', [])
+        if str(productid) not in cart_order:
+            cart_order.append(str(productid))
+            session['cart_order'] = cart_order
     except Exception as e:
         current_app.logger.error(f"Database error adding to cart: {e}")
 
@@ -63,6 +69,11 @@ def remove_from_cart(productid):
         cart[key]['quantity'] -= 1
         if cart[key]['quantity'] <= 0:
             del cart[key]
+            # Update order
+            cart_order = session.get('cart_order', [])
+            if key in cart_order:
+                cart_order.remove(key)
+                session['cart_order'] = cart_order
         session['cart'] = cart
         
     if request.args.get('ajax') == '1' or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
