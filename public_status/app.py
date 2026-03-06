@@ -21,10 +21,11 @@ class ColorFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format_str = "%(levelname)s:%(name)s:%(message)s"
+    
+    format_str = "[%(asctime)s] [%(process)d] [%(levelname)s] [%(name)s] %(message)s"
 
     def __init__(self):
-        super().__init__(fmt=self.format_str)
+        super().__init__(fmt=self.format_str, datefmt="%Y-%m-%d %H:%M:%S %z")
 
     def format(self, record):
         formatted = super().format(record)

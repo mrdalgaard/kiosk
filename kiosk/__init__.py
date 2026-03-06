@@ -1,6 +1,6 @@
 
 from flask import Flask
-from flask_apscheduler import APScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from .config import Config
 from .database import init_db, init_db_schema
 from .routes import register_routes
@@ -15,21 +15,18 @@ class ColorFormatter(logging.Formatter):
     red = "\x1b[31;20m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format_str = "%(levelname)s:%(name)s:%(message)s"
+    
+    # We use a standard format string to let super() handle the heavy lifting
+    format_str = "[%(asctime)s] [%(process)d] [%(levelname)s] [%(name)s] %(message)s"
 
     def __init__(self):
-        super().__init__(fmt=self.format_str)
-
-    FORMATS = {
-        logging.DEBUG: grey + format_str + reset,
-        logging.INFO: grey + format_str + reset,
-        logging.WARNING: yellow + format_str + reset,
-        logging.ERROR: red + format_str + reset,
-        logging.CRITICAL: bold_red + format_str + reset
-    }
+        super().__init__(fmt=self.format_str, datefmt="%Y-%m-%d %H:%M:%S %z")
 
     def format(self, record):
+        # Let the base formatter resolve all the built-in variables natively
         formatted = super().format(record)
+        
+        # Then apply ANSI styling strictly to the resolved string output
         if record.levelno >= logging.ERROR:
             return self.red + formatted + self.reset
         elif record.levelno >= logging.WARNING:
@@ -60,26 +57,26 @@ def create_app(config_class=Config):
         init_db(app)
         init_db_schema(app)
 
-    # Initialize Scheduler
-    scheduler = APScheduler()
-    scheduler.init_app(app)
-    scheduler.start()
-
-    # Register Scheduler Job
+    # Initialize Scheduler (using raw APScheduler instead of Flask-APScheduler)
     if app.config.get('ENABLE_ECONOMICS', True):
-        @scheduler.task("interval", id="transferEco", seconds=30, coalesce=True, max_instances=1)
+        scheduler = BackgroundScheduler(daemon=True)
+
         def transfer_to_economics_job():
             with app.app_context():
                 EconomicsService.sync_pending_transfers()
 
-        # Register Periodic User Sync Job
-        @scheduler.task("interval", id="updateUsersEco", minutes=30, coalesce=True, max_instances=1)
         def update_users_job():
             with app.app_context():
                 try:
                     EconomicsService.update_users()
                 except Exception as e:
                     app.logger.warning(f"Background user sync failed: {e}")
+
+        scheduler.add_job(transfer_to_economics_job, 'interval', id="transferEco", seconds=30, coalesce=True, max_instances=1)
+        scheduler.add_job(update_users_job, 'interval', id="updateUsersEco", minutes=30, coalesce=True, max_instances=1)
+
+        scheduler.start()
+        app.scheduler = scheduler  # Keep reference to prevent GC
 
     # Register Routes
     register_routes(app)

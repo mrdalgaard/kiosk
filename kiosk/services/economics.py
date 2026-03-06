@@ -2,11 +2,10 @@
 import requests
 import logging
 import traceback
+from flask import current_app
 from ..config import Config
 from ..database import get_db_connection
 import psycopg
-
-logger = logging.getLogger(__name__)
 
 class EconomicsService:
     @staticmethod
@@ -26,21 +25,21 @@ class EconomicsService:
         try:
             if method == 'GET':
                 response = requests.get(url, headers=headers, timeout=5)
-                logger.debug(f"Getting from {url}")
+                current_app.logger.debug(f"Getting from {url}")
             elif method == 'POST':
                 response = requests.post(url, headers=headers, json=data, timeout=5)
-                logger.debug(f"Posting to {url}")
+                current_app.logger.debug(f"Posting to {url}")
             elif method == 'PUT':
                 response = requests.put(url, headers=headers, json=data, timeout=5)
-                logger.debug(f"Putting to {url}")
+                current_app.logger.debug(f"Putting to {url}")
             
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as e:
-            logger.error(f"Economics API Error ({method} {url}): {e.response.text}")
+            current_app.logger.error(f"Economics API Error ({method} {url}): {e.response.text}")
             raise
         except Exception as e:
-            logger.error(f"Economics Request Failed ({method} {url}): {e}")
+            current_app.logger.error(f"Economics Request Failed ({method} {url}): {e}")
             raise
 
     @staticmethod
@@ -55,7 +54,7 @@ class EconomicsService:
             try:
                 data = EconomicsService._request('GET', url)
             except Exception as e:
-                logger.error(f"Failed to fetch users from Economics API: {e}")
+                current_app.logger.error(f"Failed to fetch users from Economics API: {e}")
                 raise
 
             if 'collection' in data:
@@ -93,7 +92,7 @@ class EconomicsService:
                                 DO UPDATE SET customername = EXCLUDED.customername, deleted = false, customergroup = EXCLUDED.customergroup
                             """, upsert_list)
         except Exception as e:
-            logger.error(f"Database error during ecoUpdateUsers: {e}")
+            current_app.logger.error(f"Database error during ecoUpdateUsers: {e}")
 
     @staticmethod
     def find_kiosk_draft_line(customerid, product_id, sold_product_name, sold_item_price):
@@ -206,7 +205,7 @@ class EconomicsService:
                     locked = curs.fetchone()[0]
                 
                 if not locked:
-                    logger.info("Another instance is running sync_pending_transfers. Skipping.")
+                    current_app.logger.info("Another instance is running sync_pending_transfers. Skipping.")
                     return
                 
                 # Lock acquired, proceed with logic
@@ -218,7 +217,7 @@ class EconomicsService:
                             waiting_transfers = curs.fetchall()
                     
                     if waiting_transfers:
-                        logger.info(f"Sync: {len(waiting_transfers)} pending transfer(s) to process.")
+                        current_app.logger.info(f"Sync: {len(waiting_transfers)} pending transfer(s) to process.")
 
                     synced_count = 0
                     for sale in waiting_transfers:
@@ -248,28 +247,28 @@ class EconomicsService:
                             
                             success = True
                             synced_count += 1
-                            logger.info(f"Successfully synced sale {sale['salesid']} (customer {sale['customerid']}, {sale['soldproductname']})")
+                            current_app.logger.info(f"Successfully synced sale {sale['salesid']} (customer {sale['customerid']}, {sale['soldproductname']})")
 
                         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as net_e:
                             tb = traceback.extract_tb(net_e.__traceback__)
                             lineno = tb[-1].lineno if tb else 'Unknown'
                             error_msg = f"Network/Timeout: {str(net_e)} (Line: {lineno})"
                             increment_attempts = False
-                            logger.warning(f"Network error syncing sale {sale['salesid']}. Will retry. (Line: {lineno})")
+                            current_app.logger.warning(f"Network error syncing sale {sale['salesid']}. Will retry. (Line: {lineno})")
 
                         except requests.exceptions.HTTPError as http_e:
                             tb = traceback.extract_tb(http_e.__traceback__)
                             lineno = tb[-1].lineno if tb else 'Unknown'
                             error_msg = f"API Rejected Sale: {str(http_e)} (Line: {lineno})"
                             increment_attempts = True
-                            logger.error(f"Economics API rejected sale {sale['salesid']}: {http_e} (Line: {lineno})")
+                            current_app.logger.error(f"Economics API rejected sale {sale['salesid']}: {http_e} (Line: {lineno})")
 
                         except Exception as e:
                             tb = traceback.extract_tb(e.__traceback__)
                             lineno = tb[-1].lineno if tb else 'Unknown'
                             error_msg = f"General Error: {str(e)} (Line: {lineno})"
                             increment_attempts = True
-                            logger.error(f"General error syncing sale {sale['salesid']}: {e} (Line: {lineno})")
+                            current_app.logger.error(f"General error syncing sale {sale['salesid']}: {e} (Line: {lineno})")
 
                         # Update DB (using separate short-lived connection)
                         try:
@@ -289,13 +288,13 @@ class EconomicsService:
                                             WHERE salesid = %s
                                         """, (attempt_increment, error_msg, sale['salesid']))
                         except Exception as db_e:
-                            logger.error(f"Failed to save status for sale {sale['salesid']}: {db_e}")
+                            current_app.logger.error(f"Failed to save status for sale {sale['salesid']}: {db_e}")
 
                     if synced_count > 0:
-                        logger.info(f"Sync complete: {synced_count}/{len(waiting_transfers)} transfer(s) succeeded.")
+                        current_app.logger.info(f"Sync complete: {synced_count}/{len(waiting_transfers)} transfer(s) succeeded.")
 
                 except Exception as e:
-                    logger.error(f"Critical error in sync loop: {e}")
+                    current_app.logger.error(f"Critical error in sync loop: {e}")
 
                 finally:
                     # Release Lock explicitly before connection closes/returns
@@ -303,7 +302,7 @@ class EconomicsService:
                         with lock_conn.cursor() as curs:
                             curs.execute("SELECT pg_advisory_unlock(%s)", (lock_id,))
                     except Exception as e:
-                        logger.error(f"Failed to release lock: {e}")
+                        current_app.logger.error(f"Failed to release lock: {e}")
                         
         except Exception as e:
-            logger.error(f"Locking connection error: {e}")
+            current_app.logger.error(f"Locking connection error: {e}")
