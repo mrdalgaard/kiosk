@@ -1,0 +1,106 @@
+{% extends "admin/layout_list.html" %}
+
+{% block title %}Kiosk Administration{% endblock %}
+{% block admin_title %}⚙️ Administration{% endblock %}
+
+{% block admin_head %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 0;
+    }
+
+    .dash-card {
+        background-color: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-color);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .dash-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        border-color: #3b82f6;
+    }
+
+    .dash-icon {
+        font-size: 3rem;
+    }
+
+    .dash-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .dash-desc {
+        color: #64748b;
+        font-size: 1rem;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div style="flex: 1; overflow-y: auto; padding-right: 0.5rem; position: relative; z-index: 1;">
+    <h2 style="margin-top: 0; margin-bottom: 0.5rem; color: var(--text-color); font-size: 1.5rem;">Kiosk</h2>
+    <div class="dashboard-grid">
+        <!-- Products -->
+        <a href="{{ url_for('admin.product_list') }}" class="dash-card">
+            <div class="dash-icon">🛒</div>
+            <h2 class="dash-title">Produkter</h2>
+            <p class="dash-desc">Opdater priser, rækkefølge og adgang</p>
+        </a>
+
+        <!-- Images -->
+        <a href="{{ url_for('admin.image_gallery') }}" class="dash-card">
+            <div class="dash-icon">🖼️</div>
+            <h2 class="dash-title">Produktbilleder</h2>
+            <p class="dash-desc">Upload og slet billeder til kiosk-skærmen</p>
+        </a>
+    </div>
+
+    <h2 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--text-color); font-size: 1.5rem;">Greenteam</h2>
+    <div class="dashboard-grid" style="padding-top: 0.5rem;">
+        <!-- Greenteam -->
+        <a href="{{ url_for('admin.mowing_user_list') }}" class="dash-card">
+            <div class="dash-icon">🚜</div>
+            <h2 class="dash-title">Greenteam</h2>
+            <p class="dash-desc">Tilføj og fjern medlemmer i Greenteamet</p>
+        </a>
+
+        <!-- Sections -->
+        <a href="{{ url_for('admin.section_list') }}" class="dash-card">
+            <div class="dash-icon">🗺️</div>
+            <h2 class="dash-title">Klippeområder</h2>
+            <p class="dash-desc">Opdater områder og estimeret klippetid</p>
+        </a>
+
+        <!-- Maintenance -->
+        <a href="{{ url_for('admin.maintenance_list') }}" class="dash-card">
+            <div class="dash-icon">🧰</div>
+            <h2 class="dash-title">Vedligehold</h2>
+            <p class="dash-desc">Tilpas service-intervaller for maskinparken</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block admin_actions %}
+<div style="flex: 1;">
+    <a href="{{ url_for('main.index') }}" style="text-decoration: none; display: block; height: 100%;">
+        <button class="action-btn clear-btn" type="button"
+            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">Tilbage til Kiosk</button>
+    </a>
+</div>
+{% endblock %}

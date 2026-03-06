@@ -49,24 +49,18 @@
 
 {% block admin_actions %}
 <div style="flex: 1;">
-    <a href="{{ url_for('admin.section_list') }}" style="text-decoration: none; display: block; height: 100%;">
+    <a href="{{ url_for('admin.index') }}" style="text-decoration: none; display: block; height: 100%;">
         <button class="action-btn clear-btn" type="button"
             style="width: 100%; height: 100%; font-size: 1.1rem; border: 2px solid var(--border-color); color: var(--text-color);">⬅️
-            Tilbage til Områder</button>
+            Tilbage til Oversigt</button>
     </a>
 </div>
 <div style="flex: 1;">
-    <a href="{{ url_for('admin.mowing_user_list') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap; background-color: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">🚜
-            Medlemmer</button>
-    </a>
 </div>
 <div style="flex: 1;">
     <a href="{{ url_for('admin.maintenance_new') }}" style="text-decoration: none; display: block; height: 100%;">
         <button class="action-btn submit-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Ny
-            Opgave</button>
+            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Ny Opgave</button>
     </a>
 </div>
 {% endblock %}

@@ -3,6 +3,7 @@
 {% block title %}Admin Login{% endblock %}
 
 {% block head %}
+<script src="{{ url_for('static', filename='login.js') }}"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 {% endblock %}
 
@@ -44,7 +45,7 @@
                 <span class="key-text">Slet</span>
             </div>
             <div class="key-card" onclick="updatePin('0')"><span class="key-num">0</span></div>
-            <div class="key-card submit-btn" onclick="document.getElementById('admin-login-form').submit()">
+            <div class="key-card submit-btn" onclick="submitForm()">
                 <span class="key-text">Log ind</span>
             </div>
         </div>
@@ -62,28 +63,5 @@
     </div>
 </div>
 
-<script>
-    function updatePin(digit) {
-        const input = document.getElementById('pin');
-        const display = document.getElementById('pin-display');
-        input.value += digit;
-        // Show dots for security
-        display.innerText = '●'.repeat(input.value.length);
-    }
-    function clearPin() {
-        document.getElementById('pin').value = '';
-        document.getElementById('pin-display').innerText = '';
-    }
-    document.addEventListener('keydown', function (e) {
-        if (e.key >= '0' && e.key <= '9') {
-            updatePin(e.key);
-        } else if (e.key === 'Backspace') {
-            const input = document.getElementById('pin');
-            input.value = input.value.slice(0, -1);
-            document.getElementById('pin-display').innerText = '●'.repeat(input.value.length);
-        } else if (e.key === 'Enter') {
-            document.getElementById('admin-login-form').submit();
-        }
-    });
-</script>
+
 {% endblock %}

@@ -21,6 +21,8 @@ INSERT INTO products (productid, productname, itemprice, imagefilename) VALUES
 (7, 'Øl - Tuborg Classic', 15.00, 'placeholder.png')
 ON CONFLICT (productid) DO NOTHING;
 
+SELECT setval(pg_get_serial_sequence('products', 'productid'), COALESCE((SELECT MAX(productid) FROM products), 1));
+
 INSERT INTO sales (customerid, productid, quantity, solditemprice, soldproductname) VALUES
 (1, 1, 1, 15.00, 'Coca Cola Zero'),
 (2, 2, 2, 10.00, 'Mars Bar'),

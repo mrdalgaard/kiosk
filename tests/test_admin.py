@@ -30,7 +30,7 @@ def test_admin_pin_entry_success(client, logged_in_client):
     """Test entering correct PIN sets session and redirects."""
     response = client.post('/admin/login', data={'pin': '1234'})
     assert response.status_code == 302
-    assert '/admin/products' in response.headers['Location']
+    assert '/admin/' in response.headers['Location']
     
     with client.session_transaction() as sess:
         assert sess['admin_authenticated'] == True
@@ -191,8 +191,8 @@ def test_image_gallery(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.os.listdir') as mock_listdir, \
-         patch('kiosk.routes.admin.os.path.isfile') as mock_isfile:
+    with patch('kiosk.routes.admin.images.os.listdir') as mock_listdir, \
+         patch('kiosk.routes.admin.images.os.path.isfile') as mock_isfile:
         mock_listdir.return_value = ['image1.jpg', 'image2.png']
         mock_isfile.return_value = True
 
@@ -208,7 +208,7 @@ def test_image_upload(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.os.path.join', return_value='/fake/path/test.jpg'), \
+    with patch('kiosk.routes.admin.images.os.path.join', return_value='/fake/path/test.jpg'), \
          patch('werkzeug.datastructures.FileStorage.save'):
         import io
         data = {
@@ -259,7 +259,7 @@ def test_product_upload_rejected_extension(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin._get_available_images', return_value=['img.jpg']):
+    with patch('kiosk.routes.admin.products._get_available_images', return_value=['img.jpg']):
         import io
         data = {
             'productname': 'Bad Product',
@@ -278,9 +278,9 @@ def test_image_delete_success(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db, \
-         patch('kiosk.routes.admin.os.path.exists', return_value=True), \
-         patch('kiosk.routes.admin.os.remove') as mock_remove:
+    with patch('kiosk.routes.admin.images.get_db_connection') as mock_db, \
+         patch('kiosk.routes.admin.images.os.path.exists', return_value=True), \
+         patch('kiosk.routes.admin.images.os.remove') as mock_remove:
         
         mock_conn = MagicMock()
         mock_curs = MagicMock()
@@ -303,8 +303,8 @@ def test_image_delete_blocked(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db, \
-         patch('kiosk.routes.admin.os.remove') as mock_remove:
+    with patch('kiosk.routes.admin.images.get_db_connection') as mock_db, \
+         patch('kiosk.routes.admin.images.os.remove') as mock_remove:
         
         mock_conn = MagicMock()
         mock_curs = MagicMock()
@@ -326,8 +326,8 @@ def test_product_edit_get(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db, \
-         patch('kiosk.routes.admin._get_available_images', return_value=['img.jpg']):
+    with patch('kiosk.routes.admin.products.get_db_connection') as mock_db, \
+         patch('kiosk.routes.admin.products._get_available_images', return_value=['img.jpg']):
         
         mock_conn = MagicMock()
         mock_curs = MagicMock()
@@ -350,7 +350,7 @@ def test_product_edit_post(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.products.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -383,7 +383,7 @@ def test_product_list_db_error(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection', side_effect=Exception('DB Down')):
+    with patch('kiosk.routes.admin.products.get_db_connection', side_effect=Exception('DB Down')):
         response = logged_in_client.get('/admin/products')
         assert response.status_code == 302
         assert '/' in response.headers['Location']
@@ -395,7 +395,7 @@ def test_image_gallery_os_error(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.os.listdir', side_effect=Exception('Permission Denied')):
+    with patch('kiosk.routes.admin.images.os.listdir', side_effect=Exception('Permission Denied')):
         response = logged_in_client.get('/admin/images')
         assert response.status_code == 200
         # Should gracefully load with empty images list
@@ -408,7 +408,7 @@ def test_image_delete_db_error(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection', side_effect=Exception('DB Crash')):
+    with patch('kiosk.routes.admin.images.get_db_connection', side_effect=Exception('DB Crash')):
         response = logged_in_client.post('/admin/images/delete/any.jpg')
         assert response.status_code == 302
         assert '/admin/images' in response.headers['Location']
@@ -420,7 +420,7 @@ def test_product_delete_db_error(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection', side_effect=Exception('DB Crash')):
+    with patch('kiosk.routes.admin.mowing_users.get_db_connection', side_effect=Exception('DB Crash')):
         response = logged_in_client.post('/admin/products/1/delete')
         assert response.status_code == 302
         assert '/admin/products' in response.headers['Location']
@@ -432,7 +432,7 @@ def test_product_edit_db_error_get(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection', side_effect=Exception('DB Down')):
+    with patch('kiosk.routes.admin.products.get_db_connection', side_effect=Exception('DB Down')):
         response = logged_in_client.get('/admin/products/1/edit')
         assert response.status_code == 302
         assert '/admin/products' in response.headers['Location']
@@ -444,11 +444,12 @@ def test_product_edit_db_error_post(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection', side_effect=Exception('DB Crash')):
+    with patch('kiosk.routes.admin.products.get_db_connection', side_effect=Exception('DB Crash')):
         data = {'productname': 'Cola'}
         response = logged_in_client.post('/admin/products/1/edit', data=data)
         assert response.status_code == 200
-        assert b'Fejl ved gemning' in response.data
+        # Assert that the error is flashed
+        assert b"Der opstod en systemfejl ved gemning af produktet." in response.data
 
 def test_mowing_user_list(logged_in_client):
     """Test loading Greenteam user list."""
@@ -457,7 +458,7 @@ def test_mowing_user_list(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_users.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -482,7 +483,7 @@ def test_mowing_user_add(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_users.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -505,7 +506,7 @@ def test_mowing_user_delete(logged_in_client):
         sess['customername'] = 'Admin'
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_users.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -526,7 +527,7 @@ def test_section_list(logged_in_client):
         sess['customerid'] = 42
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_sections.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -547,7 +548,7 @@ def test_section_add(logged_in_client):
         sess['customerid'] = 42
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_sections.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -568,7 +569,7 @@ def test_section_delete_fallback_to_disable(logged_in_client):
         sess['admin_authenticated'] = True
 
     import psycopg
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_sections.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -600,7 +601,7 @@ def test_maintenance_list(logged_in_client):
         sess['customerid'] = 42
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_maintenance.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -621,7 +622,7 @@ def test_maintenance_add(logged_in_client):
         sess['customerid'] = 42
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_maintenance.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn
@@ -641,7 +642,7 @@ def test_maintenance_delete(logged_in_client):
         sess['customerid'] = 42
         sess['admin_authenticated'] = True
 
-    with patch('kiosk.routes.admin.get_db_connection') as mock_db:
+    with patch('kiosk.routes.admin.mowing_maintenance.get_db_connection') as mock_db:
         mock_conn = MagicMock()
         mock_curs = MagicMock()
         mock_conn.__enter__.return_value = mock_conn

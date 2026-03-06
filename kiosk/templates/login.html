@@ -3,7 +3,7 @@
 {% block title %}Kantine Login{% endblock %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='login.js') }}" type="module"></script>
+<script src="{{ url_for('static', filename='login.js') }}"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <style>
     /* Viewport lock to prevent any unwanted scrolling on tablet */
@@ -55,7 +55,7 @@
                 <span class="key-text">Slet</span>
             </div>
             <div class="key-card" onclick="updatePin('0')"><span class="key-num">0</span></div>
-            <div class="key-card submit-btn" onclick="document.getElementById('login-form').submit()">
+            <div class="key-card submit-btn" onclick="submitForm()">
                 <span class="key-text">Log ind</span>
             </div>
         </div>
@@ -120,28 +120,5 @@
     </div>
 </div>
 
-<script>
-    function updatePin(digit) {
-        const input = document.getElementById('customer_id');
-        const display = document.getElementById('pin-display');
-        input.value += digit;
-        display.innerText = input.value;
-    }
-    function clearPin() {
-        document.getElementById('customer_id').value = '';
-        document.getElementById('pin-display').innerText = '';
-    }
-    // Handle keyboard input (fallback logic if kioskboard is attached to body)
-    document.addEventListener('keydown', function (e) {
-        if (e.key >= '0' && e.key <= '9') {
-            updatePin(e.key);
-        } else if (e.key === 'Backspace') {
-            const input = document.getElementById('customer_id');
-            input.value = input.value.slice(0, -1);
-            document.getElementById('pin-display').innerText = input.value;
-        } else if (e.key === 'Enter') {
-            document.getElementById('login-form').submit();
-        }
-    });
-</script>
+
 {% endblock %}
