@@ -1,6 +1,7 @@
 import os
 import sys
 import datetime
+import logging
 from flask import Flask, render_template
 import psycopg
 from psycopg.rows import dict_row
@@ -12,7 +13,43 @@ from dotenv import load_dotenv
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env.public')
 load_dotenv(env_path)
 
+class ColorFormatter(logging.Formatter):
+    """Custom logger formatter that adds color based on level."""
+    
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format_str = "%(levelname)s:%(name)s:%(message)s"
+
+    def __init__(self):
+        super().__init__(fmt=self.format_str)
+
+    def format(self, record):
+        formatted = super().format(record)
+        if record.levelno >= logging.ERROR:
+            return self.red + formatted + self.reset
+        elif record.levelno >= logging.WARNING:
+            return self.yellow + formatted + self.reset
+        return self.grey + formatted + self.reset
+
 app = Flask(__name__)
+
+# Configure Logging with Colors
+log_level_str = os.environ.get('LOG_LEVEL', 'INFO').upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+
+handler = logging.StreamHandler()
+handler.setFormatter(ColorFormatter())
+
+root_logger = logging.getLogger()
+root_logger.setLevel(log_level)
+root_logger.handlers = [handler]
+
+app.logger.setLevel(log_level)
+for app_handler in app.logger.handlers:
+    app_handler.setFormatter(ColorFormatter())
 
 # Fetch database credentials from environment variables
 DB_HOST = os.environ.get('DB_HOST', 'postgres')
@@ -61,7 +98,7 @@ def mowing_status():
                                last_mowed=last_mowed, 
                                overdue_maintenance=overdue_maintenance)
     except Exception as e:
-        print(f"Error accessing database: {e}")
+        app.logger.error(f"Error accessing database: {e}")
         return render_template('index.html', error=str(e), mowing_history=[], last_mowed=[], overdue_maintenance=[])
 
 @app.route('/health')
