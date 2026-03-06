@@ -40,8 +40,8 @@ def login():
                 current_app.logger.error(f"Database unavailable during search: {e}")
                 error_msg = 'Systemfejl: Kunne ikke forbinde til databasen.'
 
-            # Only run API logic if DB was okay but user wasn't found
-            if result is None and error_msg is None and last_customer_refresh + Config.ECO_MIN_CUSTOMER_REFRESH_INTERVAL_SEC < time.monotonic():
+            # Only run API logic if DB was okay, user wasn't found, and economics is enabled
+            if result is None and error_msg is None and Config.ENABLE_ECONOMICS and last_customer_refresh + Config.ECO_MIN_CUSTOMER_REFRESH_INTERVAL_SEC < time.monotonic():
                 last_customer_refresh = time.monotonic()
                 try:
                     EconomicsService.update_users()

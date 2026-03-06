@@ -66,19 +66,20 @@ def create_app(config_class=Config):
     scheduler.start()
 
     # Register Scheduler Job
-    @scheduler.task("interval", id="transferEco", seconds=30, coalesce=True, max_instances=1)
-    def transfer_to_economics_job():
-        with app.app_context():
-            EconomicsService.sync_pending_transfers()
+    if app.config.get('ENABLE_ECONOMICS', True):
+        @scheduler.task("interval", id="transferEco", seconds=30, coalesce=True, max_instances=1)
+        def transfer_to_economics_job():
+            with app.app_context():
+                EconomicsService.sync_pending_transfers()
 
-    # Register Periodic User Sync Job
-    @scheduler.task("interval", id="updateUsersEco", minutes=30, coalesce=True, max_instances=1)
-    def update_users_job():
-        with app.app_context():
-            try:
-                EconomicsService.update_users()
-            except Exception as e:
-                app.logger.warning(f"Background user sync failed: {e}")
+        # Register Periodic User Sync Job
+        @scheduler.task("interval", id="updateUsersEco", minutes=30, coalesce=True, max_instances=1)
+        def update_users_job():
+            with app.app_context():
+                try:
+                    EconomicsService.update_users()
+                except Exception as e:
+                    app.logger.warning(f"Background user sync failed: {e}")
 
     # Register Routes
     register_routes(app)

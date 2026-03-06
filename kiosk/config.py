@@ -17,11 +17,13 @@ class Config:
         raise ValueError("No DB_PASSWORD set for Flask application")
     
     # Economics API
+    ENABLE_ECONOMICS = os.environ.get('ENABLE_ECONOMICS', 'True').lower() == 'true'
+    
     ECO_GRANT_TOKEN = os.environ.get('ECO_GRANT_TOKEN')
     ECO_SECRET_TOKEN = os.environ.get('ECO_SECRET_TOKEN')
 
-    if not ECO_GRANT_TOKEN or not ECO_SECRET_TOKEN:
-        raise ValueError("No Economics API tokens set for Flask application")
+    if ENABLE_ECONOMICS and (not ECO_GRANT_TOKEN or not ECO_SECRET_TOKEN):
+        raise ValueError("Economics API is enabled but tokens are missing for Flask application")
 
     ECO_PRODUCT_ID = int(os.environ.get('ECO_PRODUCT_ID', 8000))
     ECO_MAX_ATTEMPTS = 4
