@@ -42,3 +42,7 @@ class Config:
     # Image Upload
     ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'}
     MAX_IMAGE_SIZE_BYTES = 100 * 1024  # 100 KB
+    # Logging
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+    SCHEDULER_LOG_LEVEL = os.environ.get('SCHEDULER_LOG_LEVEL', 'WARNING').upper()
+    LOG_HTTP_ACCESS = os.environ.get('LOG_HTTP_ACCESS', 'True').lower() == 'true'

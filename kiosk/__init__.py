@@ -7,14 +7,53 @@ from .routes import register_routes
 from .services.economics import EconomicsService
 import logging
 
+class ColorFormatter(logging.Formatter):
+    """Custom logger formatter that adds color based on level."""
+    
+    grey = "\x1b[38;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format_str = "%(levelname)s:%(name)s:%(message)s"
+
+    def __init__(self):
+        super().__init__(fmt=self.format_str)
+
+    FORMATS = {
+        logging.DEBUG: grey + format_str + reset,
+        logging.INFO: grey + format_str + reset,
+        logging.WARNING: yellow + format_str + reset,
+        logging.ERROR: red + format_str + reset,
+        logging.CRITICAL: bold_red + format_str + reset
+    }
+
+    def format(self, record):
+        formatted = super().format(record)
+        if record.levelno >= logging.ERROR:
+            return self.red + formatted + self.reset
+        elif record.levelno >= logging.WARNING:
+            return self.yellow + formatted + self.reset
+        return self.grey + formatted + self.reset
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Configure Logging
-    logging.basicConfig(level=logging.INFO)
-    app.logger.setLevel(logging.INFO)
-    logging.getLogger('apscheduler').setLevel(logging.WARNING)
+    # Configure Logging with Colors
+    handler = logging.StreamHandler()
+    handler.setFormatter(ColorFormatter())
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, app.config['LOG_LEVEL'], logging.INFO))
+    root_logger.handlers = [handler]
+    
+    app.logger.setLevel(getattr(logging, app.config['LOG_LEVEL'], logging.INFO))
+    for app_handler in app.logger.handlers:
+        app_handler.setFormatter(ColorFormatter())
+        
+    logging.getLogger('apscheduler').setLevel(getattr(logging, app.config['SCHEDULER_LOG_LEVEL'], logging.WARNING))
 
     # Initialize Database
     with app.app_context():
