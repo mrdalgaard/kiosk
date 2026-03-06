@@ -17,7 +17,7 @@
 <div class="app-container"
     style="justify-content: center; flex-direction: {% block public_flex_direction %}column{% endblock %}; gap: {% block public_gap %}0{% endblock %};">
     <div class="panel"
-        style="flex: 1; max-width: {% block public_panel_width %}900px{% endblock %}; display: flex; flex-direction: column; height: calc(100% - 3rem); overflow: hidden; position: relative; margin: 0 auto;">
+        style="flex: 1; max-width: {% block public_panel_width %}900px{% endblock %}; display: flex; flex-direction: column; height: calc(100vh - 3rem); overflow: hidden; position: relative; margin: 0 auto;">
 
         <!-- Logo Watermark -->
         <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
