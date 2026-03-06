@@ -5,19 +5,7 @@
 {% block head %}
 <script src="{{ url_for('static', filename='login.js') }}"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<style>
-    /* Viewport lock to prevent any unwanted scrolling on tablet */
-    html,
-    body {
-        height: 100vh !important;
-        overflow: hidden !important;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f6f8;
-        /* Simple light grey background */
-        font-family: Arial, Helvetica, sans-serif;
-    }
-</style>
+
 {% endblock %}
 
 {% block content %}
