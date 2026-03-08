@@ -3,17 +3,14 @@
 {% block title %}AASvK kantine{% endblock %}
 
 {% block head %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 {% endblock %}
 
 {% block content %}
 <div class="app-container">
 
-    <!-- Left Column: Products Pane (Approx 65%) -->
-    <div class="panel interaction-pane" style="flex: 1.5; display: flex; flex-direction: column;">
-        <div class="brand-header"
-            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">Velkommen {{ customername }}</h1>
+    <div class="panel interaction-pane">
+        <div class="brand-header border-b-2 border-var-border-color text-left">
+            <h1 class="text-var-brand-color m-0">Velkommen {{ customername }}</h1>
         </div>
 
         {% if error %}
@@ -31,19 +28,16 @@
         </div>
     </div>
 
-    <!-- Right Column: Cart & Info Pane (Approx 35%) -->
-    <div class="panel info-pane" style="flex: 0.85; display: flex; flex-direction: column; position: relative;">
+    <div class="panel info-pane">
         <!-- Logo Watermark -->
         <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" alt="AaSvK Logo">
 
-        <div class="info-header" style="position: relative; z-index: 1;">
+        <div class="info-header relative z-1">
             {% if greenteam %}
-            <div style="width: 100%; height: 4.5rem; margin-bottom: 1rem;">
-                <form method="get" action="{{ url_for('mowing.mowing_status') }}" class="util-form"
-                    style="width: 100%; height: 100%;">
-                    <button class="action-btn btn-secondary" type="submit"
-                        style="width: 100%; height: 100%; font-size: 1.25rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                        <span style="font-size: 1.5em; line-height: 1;">🚜</span>
+            <div class="w-full mb-1" style="height: 4.5rem;">
+                <form method="get" action="{{ url_for('mowing.mowing_status') }}" class="util-form h-full w-full">
+                    <button class="action-btn btn-secondary h-full w-full title-with-icon" type="submit">
+                        <span>🚜</span>
                         Græsslåning
                     </button>
                 </form>
@@ -52,12 +46,12 @@
             <h3>Kurv</h3>
         </div>
 
-        <div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+        <div class="table-scroll-area flex-1 mb-1 relative z-1">
             <table class="data-table">
                 <thead>
                     <tr>
                         <th style="width: 45%;">Vare</th>
-                        <th class="col-antal" style="width: 20%; padding-right: 1.25rem;">Antal</th>
+                        <th class="col-antal" style="width: 20%;">Antal</th>
                         <th style="width: 25%; text-align: right;">Pris</th>
                         <th style="width: 10%;"></th>
                     </tr>
@@ -68,9 +62,8 @@
             </table>
         </div>
 
-        <div class="utility-actions"
-            style="position: relative; z-index: 1; flex-shrink: 0; margin-bottom: 1rem; flex-wrap: wrap; height: auto; gap: 0.5rem;">
-            <div style="display: flex; width: 100%; gap: 0.5rem; height: 4.5rem;">
+        <div class="utility-actions relative z-1" style="flex-wrap: wrap; height: auto; margin-top: auto;">
+            <div class="flex-1 w-full gap-1 h-full" style="display: flex; height: 4.5rem;">
                 <form method="post" action="{{ url_for('auth.logout') }}" class="util-form">
                     <button class="action-btn clear-btn" type="submit">Annuller</button>
                 </form>
@@ -83,9 +76,10 @@
                     <button class="action-btn btn-secondary" type="submit">Historik</button>
                 </form>
             </div>
-            <div style="width: 100%; height: 5rem; margin-top: 0.5rem;">
-                <form id="checkout-form" method="post" action="{{ url_for('main.checkout') }}" class="util-form" style="height: 100%;">
-                    <button id="checkout-btn" class="action-btn submit-btn" type="submit" style="font-size: 1.75rem;">Køb</button>
+            <div class="w-full" style="height: 5rem; margin-top: 0.5rem;">
+                <form id="checkout-form" method="post" action="{{ url_for('main.checkout') }}" class="util-form h-full">
+                    <button id="checkout-btn" class="action-btn submit-btn h-full w-full" type="submit"
+                        style="font-size: 1.75rem;">Køb</button>
                 </form>
             </div>
         </div>

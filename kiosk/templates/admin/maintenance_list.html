@@ -5,7 +5,7 @@
 
 {% block admin_content %}
 <!-- Scrollable table -->
-<div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+<div class="table-scroll-area flex-1 relative z-1 mb-1">
     <table class="data-table">
         <thead>
             <tr>
@@ -19,17 +19,17 @@
             {% for item in maintenance_items %}
             <tr>
                 <td style="color: #6b7280;">#{{ item.id }}</td>
-                <td style="font-weight: bold; font-size: 1.1rem;">{{ item.maintenance_type }}</td>
+                <td style="font-weight: bold;">{{ item.maintenance_type }}</td>
                 <td>{{ item.interval_h }}</td>
                 <td style="width: 220px;">
-                    <div style="display: flex; gap: 0.5rem; overflow: hidden;">
-                        <a href="{{ url_for('admin.maintenance_edit', id=item.id) }}"
-                            style="display: flex; text-decoration: none; width: calc(50% - 0.25rem);">
-                            <button type="button" class="inline-btn inline-btn-edit">✏️ Rediger</button>
+                    <div class="flex gap-05" style="overflow: hidden;">
+                        <a href="{{ url_for('admin.maintenance_edit', id=item.id) }}" class="flex h-full"
+                            style="text-decoration: none; width: calc(50% - 4px);">
+                            <button type="button" class="inline-btn inline-btn-edit h-full w-full">✏️ Rediger</button>
                         </a>
-                        <form action="{{ url_for('admin.maintenance_delete', id=item.id) }}" method="POST"
-                            style="display: flex; margin: 0; width: calc(50% - 0.25rem);">
-                            <button type="button" class="inline-btn inline-btn-delete"
+                        <form action="{{ url_for('admin.maintenance_delete', id=item.id) }}" method="POST" class="flex"
+                            style="margin: 0; width: calc(50% - 4px);">
+                            <button type="button" class="inline-btn inline-btn-delete h-full w-full"
                                 onclick="showDeleteModal(this, '{{ item.maintenance_type }}')">🗑 Slet</button>
                         </form>
                     </div>
@@ -48,19 +48,15 @@
 {% endblock %}
 
 {% block admin_actions %}
-<div style="flex: 1;">
-    <a href="{{ url_for('admin.index') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn clear-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; border: 2px solid var(--border-color); color: var(--text-color);">⬅️
-            Tilbage til Oversigt</button>
+<div class="flex-1">
+    <a href="{{ url_for('admin.index') }}" class="h-full" style="text-decoration: none; display: block;">
+        <button class="action-btn clear-btn h-full w-full" type="button">⬅️ Tilbage</button>
     </a>
 </div>
-<div style="flex: 1;">
-</div>
-<div style="flex: 1;">
-    <a href="{{ url_for('admin.maintenance_new') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn submit-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Ny Opgave</button>
+<div class="flex-1"></div>
+<div class="flex-1">
+    <a href="{{ url_for('admin.maintenance_new') }}" class="h-full" style="text-decoration: none; display: block;">
+        <button class="action-btn submit-btn h-full w-full" type="button">+ Ny Opgave</button>
     </a>
 </div>
 {% endblock %}

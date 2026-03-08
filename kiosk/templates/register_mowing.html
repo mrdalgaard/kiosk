@@ -38,26 +38,27 @@
 {% endblock %}
 
 {% block public_title %}
-<span style="font-size: 1.25em; line-height: 1;">🚜</span>
-Registrer klipning
+<div class="title-with-icon">
+    <span>🚜</span>
+    Registrer klipning
+</div>
 {% endblock %}
-{% block public_title_style %}display: flex; align-items: center; gap: 0.75rem;{% endblock %}
+{% block public_title_style %}{% endblock %}
 
 {% block public_content %}
 <form action="{{ url_for('mowing.register_mowing') }}" method="post" id="register-form"
-    style="display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;">
+    class="flex-col flex-1 relative z-1" style="min-height: 0;">
 
     <!-- Date Picker Section -->
-    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
-        <h3 style="margin: 0; font-size: 1.5rem; color: var(--text-color);">Dato:</h3>
+    <div class="mb-1 title-with-icon" style="flex-shrink: 0;">
+        <h3 class="m-0 text-var-text-color">Dato:</h3>
         <input type="date" id="date" name="date" class="form-control" max="{{ today_date }}"
-            style="width: auto; flex: 1; max-width: 300px;" required>
+            style="width: auto; flex: 1; max-width: 18.75rem;" required>
     </div>
 
     <!-- Scrollable table area -->
-    <div
-        style="flex: 1; min-height: 0; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border-color, #e5e7eb); border-radius: 8px;">
-        <table class="data-table" style="margin: 0;">
+    <div class="flex-1 mb-1 overflow-y-auto border-1 rounded-8" style="min-height: 0;">
+        <table class="data-table m-0">
             <thead style="position: sticky; top: 0; z-index: 2; background: white;">
                 <tr>
                     <th style="width: 50%;">Sektion</th>
@@ -69,8 +70,7 @@ Registrer klipning
                 <tr>
                     <td style="font-weight: bold; font-size: 1.25rem;">{{ section.section_name }}</td>
                     <td>
-                        <select name="status_{{ section.id }}" class="form-control"
-                            style="font-size: 1.1rem; padding: 0.5rem;">
+                        <select name="status_{{ section.id }}" class="form-control" style="padding: 0.5rem;">
                             <option value="NotMowed">Ikke klippet</option>
                             <option value="1/8">1/8 klippet</option>
                             <option value="2/8">2/8 klippet</option>
@@ -94,14 +94,12 @@ Registrer klipning
 
 {% block public_action_height %}5rem{% endblock %}
 {% block public_actions %}
-<div style="flex: 1;">
-    <a href="{{ url_for('mowing.mowing_status') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn clear-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.5rem;">Tilbage</button>
+<div class="flex-1">
+    <a href="{{ url_for('mowing.mowing_status') }}" class="h-full" style="text-decoration: none; display: block;">
+        <button class="action-btn clear-btn h-full w-full" type="button">Tilbage</button>
     </a>
 </div>
 <div style="flex: 2;">
-    <button class="action-btn submit-btn" type="submit" form="register-form"
-        style="width: 100%; height: 100%; font-size: 1.75rem;">🚜 Gem Klipning</button>
+    <button class="action-btn submit-btn h-full w-full" type="submit" form="register-form">🚜 Gem Klipning</button>
 </div>
 {% endblock %}

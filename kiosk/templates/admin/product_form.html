@@ -2,13 +2,11 @@
 
 {% block title %}{% if product.productid %}Rediger Produkt{% else %}Nyt Produkt{% endif %}{% endblock %}
 
-{% block panel_style %}flex: 1; width: 100%; display: flex; flex-direction: column; height: 100%;
-overflow: hidden; position: relative;{% endblock %}
+{% block panel_style %}flex: 1; width: 100%;{% endblock %}
 
 {% block watermark %}
 <!-- Logo Watermark -->
-<img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" style="opacity: 0.02; max-width: 400px;"
-    alt="AaSvK Logo">
+<img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" alt="AaSvK Logo">
 {% endblock %}
 
 {% block title_size %}1.6rem{% endblock %}
@@ -19,11 +17,10 @@ overflow: hidden; position: relative;{% endblock %}
 
 {% block admin_content %}
 
-<form method="POST" enctype="multipart/form-data"
-    style="display: flex; flex-direction: column; flex: 1; min-height: 0; position: relative; z-index: 1;">
+<form method="POST" enctype="multipart/form-data" class="flex-col flex-1 relative z-1" style="min-height: 0;">
 
     <!-- Scrollable form body -->
-    <div style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 0.5rem;">
+    <div class="flex-1" style="min-height: 0; overflow-y: auto; padding-right: 0.5rem;">
 
         <div class="form-group">
             <label for="productname">Navn:</label>
@@ -63,7 +60,7 @@ overflow: hidden; position: relative;{% endblock %}
         {% if product and product.imagefilename %}
         <div class="form-group" style="display: flex; align-items: center; gap: 1rem;">
             <img src="{{ url_for('static', filename='images/' + product.imagefilename) }}"
-                style="height: 80px; border-radius: 8px; border: 2px solid var(--border-color);">
+                style="height: 5rem; border-radius: 0.5rem; border: 0.125rem solid var(--border-color);">
             <div>
                 <div style="font-weight: bold; font-size: 1rem;">Nuværende billede:</div>
                 <div style="font-size: 0.9rem; color: #6b7280;">{{ product.imagefilename }}</div>
@@ -82,16 +79,14 @@ overflow: hidden; position: relative;{% endblock %}
     </div>
 
     <!-- Bottom Action Row -->
-    <div style="display: flex; gap: 1rem; height: 3.5rem; flex-shrink: 0; padding-top: 0.25rem;">
-        <div style="flex: 1;">
-            <a href="{{ url_for('admin.product_list') }}" style="text-decoration: none; display: block; height: 100%;">
-                <button class="action-btn clear-btn" type="button"
-                    style="width: 100%; height: 100%; font-size: 1.3rem;">Annuller</button>
+    <div class="utility-actions relative z-1" style="height: 3.5rem; padding-top: 0.25rem;">
+        <div class="flex-1">
+            <a href="{{ url_for('admin.product_list') }}" class="h-full" style="text-decoration: none; display: block;">
+                <button class="action-btn clear-btn h-full w-full" type="button">Annuller</button>
             </a>
         </div>
         <div style="flex: 2;">
-            <button class="action-btn submit-btn" type="submit"
-                style="width: 100%; height: 100%; font-size: 1.5rem;">Gem Produkt</button>
+            <button class="action-btn submit-btn h-full w-full" type="submit">Gem Produkt</button>
         </div>
     </div>
 

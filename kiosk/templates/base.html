@@ -10,13 +10,34 @@
     <meta name="google" content="notranslate" />
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     {% block head %}{% endblock %}
+
+    <!-- Dynamic REM Scaling for 1:1 pixel-wise linear scaling -->
+    <script>
+        (function () {
+            function updateFontSize() {
+                // Reference dimensions (1024x768 is our 16px baseline)
+                var BASE_WIDTH = 1024;
+                var BASE_HEIGHT = 820; // Increased to account for the full height of the panels including buttons
+
+                var widthScale = window.innerWidth / BASE_WIDTH;
+                var heightScale = window.innerHeight / BASE_HEIGHT;
+
+                // Select the most restrictive scale to ensure nothing is clipped
+                var scale = Math.min(widthScale, heightScale);
+
+                // Set the root font size proportionally (baseline 16px)
+                document.documentElement.style.fontSize = (scale * 16) + 'px';
+            }
+
+            window.addEventListener('resize', updateFontSize);
+            updateFontSize();
+        })();
+    </script>
 </head>
 
 <body>
     <!-- Toast Container -->
-    <div id="toast-container"
-        style="position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); z-index: 99999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; width: 90%; max-width: 500px;">
-    </div>
+    <div id="toast-container"></div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -40,12 +61,11 @@
             var container = document.getElementById('toast-container');
             var toast = document.createElement('div');
             var isError = (category === 'error' || category === 'danger');
-            toast.style.cssText = 'pointer-events: auto; padding: 1.5rem 2rem; border-radius: 12px; font-size: 1.5rem; font-weight: 600; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15); animation: toastSlideIn 0.4s ease; cursor: pointer;'
-                + (isError
-                    ? 'background: #fef2f2; color: #991b1b; border: 2px solid #fecaca;'
-                    : 'background: #f0fdf4; color: #166534; border: 2px solid #bbf7d0;');
+
+            toast.className = 'toast ' + (isError ? 'toast-error' : 'toast-success');
             toast.textContent = message;
             toast.onclick = function () { dismissToast(toast); };
+
             container.appendChild(toast);
             setTimeout(function () { dismissToast(toast); }, 8000);
         }
@@ -58,31 +78,6 @@
         }
     </script>
 
-    <style>
-        @keyframes toastSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-1rem);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes toastSlideOut {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            to {
-                opacity: 0;
-                transform: translateY(-1rem);
-            }
-        }
-    </style>
 
     <script>
         if ('serviceWorker' in navigator) {

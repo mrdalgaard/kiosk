@@ -5,27 +5,23 @@
 
 {% block admin_content %}
 <!-- Add User Form -->
-<div
-    style="background: #f9fafb; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; position: relative; z-index: 1;">
-    <form action="{{ url_for('admin.mowing_user_add') }}" method="POST"
-        style="display: flex; gap: 1rem; align-items: center; margin: 0;">
-        <label for="customerid" style="font-weight: bold; font-size: 1.1rem; white-space: nowrap;">Tilføj
-            medlem:</label>
-        <select name="customerid" id="customerid" required
-            style="flex: 1; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 8px; font-size: 1.1rem;">
-            <option value="" disabled selected>-- Vælg et medlem at tilføje --</option>
+<div class="panel mb-1 relative z-1" style="padding: 1rem;">
+    <form action="{{ url_for('admin.mowing_user_add') }}" method="POST" class="flex gap-1"
+        style="align-items: center; margin: 0;">
+        <label for="customerid" style="font-weight: bold; white-space: nowrap;">Tilføj medlem:</label>
+        <select name="customerid" id="customerid" required class="form-control flex-1">
+            <option value="" disabled selected>-- Vælg et medlem --</option>
             {% for customer in available_customers %}
             <option value="{{ customer.customerid }}">{{ customer.customername }}</option>
             {% endfor %}
         </select>
         <button type="submit" class="action-btn submit-btn"
-            style="white-space: nowrap; margin: 0; padding: 0.75rem 1.5rem; font-size: 1.1rem;">➕
-            Tilføj</button>
+            style="white-space: nowrap; margin: 0; padding: 0.75rem 1.5rem;">➕ Tilføj</button>
     </form>
 </div>
 
 <!-- Scrollable table -->
-<div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+<div class="table-scroll-area flex-1 relative z-1 mb-1">
     <table class="data-table">
         <thead>
             <tr>
@@ -38,11 +34,11 @@
             {% for user in mowing_users %}
             <tr>
                 <td style="color: #6b7280;">#{{ user.customerid }}</td>
-                <td style="font-weight: bold; font-size: 1.1rem;">{{ user.customername }}</td>
+                <td style="font-weight: bold;">{{ user.customername }}</td>
                 <td style="width: 140px;">
                     <form action="{{ url_for('admin.mowing_user_delete', id=user.customerid) }}" method="POST"
-                        style="display: flex; margin: 0;">
-                        <button type="button" class="inline-btn inline-btn-delete" style="width: 100%;"
+                        class="flex" style="margin: 0; width: 100%;">
+                        <button type="button" class="inline-btn inline-btn-delete w-full"
                             onclick="showDeleteModal(this, '{{ user.customername }}')">🗑 Slet</button>
                     </form>
                 </td>
@@ -60,11 +56,9 @@
 {% endblock %}
 
 {% block admin_actions %}
-<div style="flex: 1;">
-    <a href="{{ url_for('admin.index') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn clear-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; border: 2px solid var(--border-color); color: var(--text-color);">⬅️
-            Tilbage til Oversigt</button>
+<div class="flex-1">
+    <a href="{{ url_for('admin.index') }}" class="h-full" style="text-decoration: none; display: block;">
+        <button class="action-btn clear-btn h-full w-full" type="button">⬅️ Tilbage</button>
     </a>
 </div>
 {% endblock %}

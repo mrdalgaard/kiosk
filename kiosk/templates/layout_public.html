@@ -14,17 +14,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="app-container"
-    style="justify-content: center; flex-direction: {% block public_flex_direction %}column{% endblock %}; gap: {% block public_gap %}0{% endblock %};">
+<div class="app-container" style="justify-content: center;">
     <div class="panel"
         style="flex: 1; width: 100%; display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative;">
 
         <!-- Logo Watermark -->
         <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
-            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+            style="opacity: 0.02; max-width: 31.25rem;" alt="AaSvK Logo">
 
         <div class="brand-header"
-            style="border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
+            style="border-bottom: 0.125rem solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; position: relative; z-index: 1; flex-shrink: 0;">
             <h1
                 style="color: var(--brand-color); font-size: 2rem; margin: 0; {% block public_title_style %}{% endblock %}">
                 {% block public_title %}{% endblock %}

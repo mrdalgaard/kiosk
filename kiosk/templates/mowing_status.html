@@ -3,24 +3,20 @@
 {% block title %}AASvK Greenteam{% endblock %}
 
 {% block head %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 {% endblock %}
 
 {% block content %}
-<div class="app-container"
-    style="justify-content: center; flex-direction: row; gap: 1.5rem; padding: 1.5rem;">
+<div class="app-container" style="justify-content: center;">
 
     <!-- Left Column: Needs Mowing Pane (Approx 50%) -->
-    <div class="panel interaction-pane"
-        style="flex: 1; display: flex; flex-direction: column; position: relative; height: 100%; overflow: hidden;">
-        <div class="brand-header"
-            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">AASvK Greenteam</h1>
+    <div class="panel interaction-pane" style="flex: 1;">
+        <div class="brand-header border-b-2 border-var-border-color pb-05 mb-1 text-left">
+            <h1 class="text-var-brand-color m-0" style="font-size: 2rem;">AASvK Greenteam</h1>
         </div>
 
         {% if overdue_maintenance %}
         <div
-            style="background-color: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; flex-shrink: 0;">
+            style="background-color: #fee2e2; border-left: 0.25rem solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1.5rem; flex-shrink: 0;">
             <div
                 style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                 <span>⚠️</span> Maskinvedligehold påkrævet
@@ -38,7 +34,7 @@
             <h3>Dage siden sidste klipning</h3>
         </div>
 
-        <div class="table-scroll-area" style="flex: 1; position: relative; z-index: 1; margin-bottom: 1rem;">
+        <div class="table-scroll-area flex-1 relative z-1 mb-1">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -66,8 +62,8 @@
             </table>
         </div>
 
-        <div style="width: 100%; height: 5rem; margin-top: auto; flex-shrink: 0;">
-            <form method="get" action="{{ url_for('main.index') }}" class="util-form" style="height: 100%;">
+        <div class="w-full" style="height: 5rem; margin-top: auto; flex-shrink: 0; position: relative; z-index: 1;">
+            <form method="get" action="{{ url_for('main.index') }}" class="util-form h-full">
                 <button class="action-btn clear-btn" type="submit" style="font-size: 1.25rem;">Tilbage til
                     Kiosken</button>
             </form>
@@ -75,17 +71,15 @@
     </div>
 
     <!-- Right Column: History Pane (Approx 50%) -->
-    <div class="panel info-pane"
-        style="flex: 1; display: flex; flex-direction: column; position: relative; height: 100%; overflow: hidden;">
+    <div class="panel info-pane" style="flex: 1;">
         <!-- Logo Watermark -->
-        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
-            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" alt="AaSvK Logo">
 
         <div class="info-header" style="position: relative; z-index: 1;">
             <h3>Klippelog</h3>
         </div>
 
-        <div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+        <div class="table-scroll-area flex-1 mb-1 relative z-1">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -116,21 +110,17 @@
             </table>
         </div>
 
-        <div style="width: 100%; height: 5rem; margin-top: 0.5rem; flex-shrink: 0; position: relative; z-index: 1;">
-            <div style="display: flex; width: 100%; gap: 0.5rem; height: 100%;">
-                <form method="get" action="{{ url_for('mowing.mowing_maintenance') }}" class="util-form"
-                    style="width: 50%;">
-                    <button class="action-btn btn-secondary" type="submit"
-                        style="width: 100%; height: 100%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                        <span style="font-size: 1.5em; line-height: 1;">🔧</span>
+        <div class="w-full relative z-1" style="height: 5rem; margin-top: auto; flex-shrink: 0;">
+            <div class="flex w-full gap-05 h-full">
+                <form method="get" action="{{ url_for('mowing.mowing_maintenance') }}" class="util-form flex-1">
+                    <button class="action-btn btn-secondary h-full w-full title-with-icon" type="submit">
+                        <span>🔧</span>
                         Vedligehold
                     </button>
                 </form>
-                <form method="get" action="{{ url_for('mowing.register_mowing') }}" class="util-form"
-                    style="width: 50%;">
-                    <button class="action-btn submit-btn" type="submit"
-                        style="width: 100%; height: 100%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                        <span style="font-size: 1.5em; line-height: 1;">🚜</span>
+                <form method="get" action="{{ url_for('mowing.register_mowing') }}" class="util-form flex-1">
+                    <button class="action-btn submit-btn h-full w-full title-with-icon" type="submit">
+                        <span>🚜</span>
                         Registrer klipning
                     </button>
                 </form>

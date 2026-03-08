@@ -5,16 +5,16 @@
 
 {% block admin_content %}
 <!-- Scrollable table -->
-<div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+<div class="table-scroll-area flex-1 relative z-1 mb-1">
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 60px;">Billede</th>
+                <th style="width: 3.75rem;">Billede</th>
                 <th>Navn</th>
                 <th>Pris</th>
                 <th>Sort.</th>
                 <th>Status</th>
-                <th style="width: 220px;">Handling</th>
+                <th style="width: 16.25rem;">Handling</th>
             </tr>
         </thead>
         <tbody>
@@ -22,9 +22,9 @@
             <tr>
                 <td>
                     <img src="{{ url_for('static', filename='images/' + product.imagefilename) }}"
-                        style="height: 40px; border-radius: 4px;">
+                        style="height: 2.5rem; border-radius: 0.25rem;">
                 </td>
-                <td style="font-weight: bold; font-size: 1.1rem;">{{ product.productname }}</td>
+                <td style="font-weight: bold;">{{ product.productname }}</td>
                 <td>{{ product.itemprice }} kr.</td>
                 <td>{{ product.sorting }}</td>
                 <td>
@@ -34,15 +34,15 @@
                     <span class="status-active">Aktiv</span>
                     {% endif %}
                 </td>
-                <td style="width: 220px;">
-                    <div style="display: flex; gap: 0.5rem; overflow: hidden;">
-                        <a href="{{ url_for('admin.product_edit', id=product.productid) }}"
-                            style="display: flex; text-decoration: none; width: calc(50% - 0.25rem);">
-                            <button type="button" class="inline-btn inline-btn-edit">✏️ Rediger</button>
+                <td style="width: 16.25rem;">
+                    <div class="flex gap-05" style="overflow: hidden;">
+                        <a href="{{ url_for('admin.product_edit', id=product.productid) }}" class="flex h-full"
+                            style="text-decoration: none; width: calc(50% - 0.25rem);">
+                            <button type="button" class="inline-btn inline-btn-edit h-full w-full">✏️ Rediger</button>
                         </a>
                         <form action="{{ url_for('admin.product_delete', id=product.productid) }}" method="POST"
-                            style="display: flex; margin: 0; width: calc(50% - 0.25rem);">
-                            <button type="button" class="inline-btn inline-btn-delete"
+                            class="flex" style="margin: 0; width: calc(50% - 0.25rem);">
+                            <button type="button" class="inline-btn inline-btn-delete h-full w-full"
                                 onclick="showDeleteModal(this, '{{ product.productname }}')">🗑 Slet</button>
                         </form>
                     </div>
@@ -56,18 +56,15 @@
 {% endblock %}
 
 {% block admin_actions %}
-<div style="flex: 1;">
-    <a href="{{ url_for('admin.index') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn clear-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">⬅️ Tilbage til Oversigt</button>
+<div class="flex-1">
+    <a href="{{ url_for('admin.index') }}" class="h-full" style="text-decoration: none; display: block;">
+        <button class="action-btn clear-btn h-full w-full" type="button">⬅️ Tilbage</button>
     </a>
 </div>
-<div style="flex: 1;">
-</div>
-<div style="flex: 1;">
-    <a href="{{ url_for('admin.product_new') }}" style="text-decoration: none; display: block; height: 100%;">
-        <button class="action-btn submit-btn" type="button"
-            style="width: 100%; height: 100%; font-size: 1.1rem; white-space: nowrap;">+ Nyt Produkt</button>
+<div class="flex-1"></div>
+<div class="flex-1">
+    <a href="{{ url_for('admin.product_new') }}" class="h-full" style="text-decoration: none; display: block;">
+        <button class="action-btn submit-btn h-full w-full" type="button">+ Nyt Produkt</button>
     </a>
 </div>
 {% endblock %}

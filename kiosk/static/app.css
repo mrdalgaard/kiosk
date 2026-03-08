@@ -12,18 +12,36 @@
     --accent-blue: #2563eb;
     --success-green: #10b981;
     --danger-red: #ef4444;
+
+    --app-padding: 1rem;
+    --app-gap: 1.25rem;
+    --panel-padding: 1.5rem;
+    --table-cell-padding-v: 0.6rem;
+    --table-cell-padding-h: 0.5rem;
+
+    /* Base Typography (will be scaled by JS) */
+    --font-h1: 2.25rem;
+    --font-h2: 1.5rem;
+    --font-h3: 1.25rem;
+    --font-key: 3.5rem;
+    --font-button: 1.5rem;
+    --font-badge: 1rem;
+
+    /* Base Heights */
+    --pin-height: 5.5rem;
+    --keypad-gap: 1rem;
 }
 
 .app-container {
     display: flex;
     width: 100%;
     height: 100%;
-    padding: 1.5rem;
-    gap: 1.5rem;
+    padding: var(--app-padding);
+    gap: var(--app-gap);
     box-sizing: border-box;
 }
 
-/* Viewport lock to prevent any unwanted scrolling on tablet */
+/* Base Layout */
 html,
 body {
     width: 100% !important;
@@ -33,6 +51,7 @@ body {
     padding: 0;
     background-color: var(--bg-color);
     font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 
@@ -43,20 +62,21 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: var(--panel-padding);
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
 }
 
 /* Left Pane: Interaction */
 .interaction-pane {
-    flex: 1.1;
+    flex: 1.5;
     min-width: 0;
 }
 
 /* Right Pane: Info */
 .info-pane {
-    flex: 0.9;
+    flex: 0.85;
     min-width: 0;
 }
 
@@ -73,21 +93,21 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 80%;
-    max-width: 400px;
-    opacity: 0.04;
+    max-width: 25rem;
+    opacity: 0.02;
     pointer-events: none;
     z-index: 0;
 }
 
 .brand-header h1 {
-    font-size: 2rem;
+    font-size: var(--font-h1);
     font-weight: 700;
     color: var(--brand-color);
     margin: 0 0 0.25rem 0;
 }
 
 .brand-header h2 {
-    font-size: 1.25rem;
+    font-size: var(--font-h2);
     font-weight: 400;
     color: var(--text-muted);
     margin: 0;
@@ -98,11 +118,12 @@ body {
     background: #f9fafb;
     border: 3px dashed var(--border-color);
     border-radius: 8px;
-    height: 5rem;
+    height: var(--pin-height);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.5rem;
+    flex-shrink: 0;
 }
 
 .pin-display-fluid {
@@ -110,6 +131,10 @@ body {
     font-weight: 700;
     color: var(--text-dark);
     letter-spacing: 0.5rem;
+    min-height: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .login-error {
@@ -129,7 +154,7 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap: 0.75rem;
+    gap: var(--keypad-gap);
     flex-grow: 1;
     margin-bottom: 1.5rem;
 }
@@ -152,13 +177,13 @@ body {
 }
 
 .key-num {
-    font-size: 3.5rem;
+    font-size: var(--font-key);
     font-weight: bold;
     color: var(--text-dark);
 }
 
 .key-text {
-    font-size: 1.5rem;
+    font-size: var(--font-button);
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -197,6 +222,7 @@ body {
     gap: 1rem;
     height: 4.5rem;
     flex-shrink: 0;
+    margin-top: auto;
 }
 
 .util-form {
@@ -207,7 +233,7 @@ body {
 .action-btn {
     flex: 1;
     border-radius: 8px;
-    font-size: 1.25rem;
+    font-size: var(--font-button);
     font-weight: bold;
     cursor: pointer;
     display: flex;
@@ -272,12 +298,12 @@ body {
     color: var(--text-dark);
     font-weight: bold;
     font-size: 1.1rem;
-    padding: 0.75rem 0.5rem;
+    padding: var(--table-cell-padding-v) var(--table-cell-padding-h);
     border-bottom: 2px solid var(--border-color);
 }
 
 .data-table td {
-    padding: 1rem 0.5rem;
+    padding: var(--table-cell-padding-v) var(--table-cell-padding-h);
     color: var(--text-dark);
     font-size: 1.1rem;
     word-break: break-word;
@@ -360,7 +386,7 @@ td.col-antal {
 }
 
 .product-image {
-    height: 110px;
+    height: 6.875rem;
     width: 100%;
     object-fit: contain;
     margin-bottom: 0.75rem;
@@ -565,76 +591,171 @@ select.form-control {
     flex: 1;
 }
 
+.overflow-y-auto {
+    overflow-y: auto;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.border-1 {
+    border: 0.0625rem solid var(--border-color);
+}
+
+.rounded-8 {
+    border-radius: 0.5rem;
+}
+
+.block {
+    display: block;
+}
+
+.no-underline {
+    text-decoration: none;
+}
+
 /* =========================================
-   Responsive Adjustments for 8" Tablets (960x600)
+   Toast Notifications
    ========================================= */
+#toast-container {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+    width: 90%;
+    max-width: 500px;
+}
 
-@media (max-height: 650px) {
-    .app-container {
-        padding: 0.75rem;
-        gap: 0.75rem;
+.toast {
+    pointer-events: auto;
+    padding: clamp(1rem, 2vh, 1.5rem) clamp(1rem, 3vw, 2rem);
+    border-radius: 12px;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: toastSlideIn 0.4s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.toast-success {
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.toast-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-1rem);
     }
 
-    .panel {
-        padding: 1rem;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastSlideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
     }
 
-    .brand-header {
-        margin-bottom: 0.75rem;
+    to {
+        opacity: 0;
+        transform: translateY(-1rem);
     }
+}
 
-    .brand-header h1 {
-        font-size: 1.5rem;
-    }
+/* =========================================
+   Utility Classes
+   ========================================= */
+.flex {
+    display: flex;
+}
 
-    .brand-header h2 {
-        font-size: 1rem;
-    }
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
 
-    .pin-display-wrapper {
-        height: 3.5rem;
-        margin-bottom: 0.75rem;
-        overflow: hidden;
-    }
+.text-left {
+    text-align: left;
+}
 
-    .pin-display-fluid {
-        font-size: 2.5rem;
-        white-space: nowrap;
-    }
+.text-var-brand-color {
+    color: var(--brand-color);
+}
 
-    .keypad-grid {
-        gap: 0.5rem;
-        margin-bottom: 0.75rem;
-    }
+.border-b-2 {
+    border-bottom: 0.125rem solid transparent;
+}
 
-    .key-num {
-        font-size: 2.25rem;
-    }
+.border-var-border-color {
+    border-color: var(--border-color);
+}
 
-    .key-text {
-        font-size: 1.1rem;
-    }
+.flex-1 {
+    flex: 1;
+}
 
-    .utility-actions {
-        height: 3.5rem;
-        gap: 0.75rem;
-    }
+.w-full {
+    width: 100%;
+}
 
-    .action-btn {
-        font-size: 1rem;
-    }
+.h-full {
+    height: 100%;
+}
 
-    .info-header {
-        margin-bottom: 0.5rem;
-    }
+.relative {
+    position: relative;
+}
 
-    .info-header h3 {
-        font-size: 1.2rem;
-    }
+.z-1 {
+    z-index: 1;
+}
 
-    .data-table th,
-    .data-table td {
-        padding: 0.5rem;
-        font-size: 0.95rem;
-    }
+.mb-1 {
+    margin-bottom: 1rem;
+}
+
+.gap-05 {
+    gap: 0.5rem;
+}
+
+.gap-1 {
+    gap: 1rem;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.pb-05 {
+    padding-bottom: 0.5rem;
+}
+
+.title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.title-with-icon span {
+    font-size: 1.25em;
+    line-height: 1;
 }
