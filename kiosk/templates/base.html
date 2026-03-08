@@ -90,6 +90,12 @@
             });
         }
     </script>
+
+    <script>
+        /* Prevent touch-hold context menu on Android PWA */
+        document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+        document.addEventListener('selectstart', function (e) { e.preventDefault(); });
+    </script>
 </body>
 
 </html>

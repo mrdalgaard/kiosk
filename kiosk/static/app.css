@@ -52,6 +52,24 @@ body {
     background-color: var(--bg-color);
     font-family: Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased;
+    /* Prevent touch-hold context menu / text selection in PWA */
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+}
+
+/* Prevent image long-press save dialog */
+img {
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+/* Re-enable pointer events for interactive images (product cards etc.) */
+a img,
+button img,
+.product-card img {
+    pointer-events: auto;
 }
 
 
