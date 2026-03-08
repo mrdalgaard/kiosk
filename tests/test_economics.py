@@ -20,25 +20,27 @@ class TestEconomicsService:
         assert headers_with_idem['Idempotency-Key'] == 'my_idem_key'
 
     @patch('kiosk.services.economics.requests.get')
-    def test_request_get_success(self, mock_get):
+    def test_request_get_success(self, mock_get, app):
         mock_response = MagicMock()
         mock_response.json.return_value = {"status": "ok"}
         mock_response.raise_for_status.return_value = None
         mock_get.return_value = mock_response
         
-        result = EconomicsService._request('GET', 'http://test.url')
-        assert result == {"status": "ok"}
+        with app.app_context():
+            result = EconomicsService._request('GET', 'http://test.url')
+            assert result == {"status": "ok"}
         mock_get.assert_called_once()
         
     @patch('kiosk.services.economics.requests.post')
-    def test_request_post_success(self, mock_post):
+    def test_request_post_success(self, mock_post, app):
         mock_response = MagicMock()
         mock_response.json.return_value = {"id": 123}
         mock_response.raise_for_status.return_value = None
         mock_post.return_value = mock_response
         
-        result = EconomicsService._request('POST', 'http://test.url', data={"foo": "bar"}, key="test-key")
-        assert result == {"id": 123}
+        with app.app_context():
+            result = EconomicsService._request('POST', 'http://test.url', data={"foo": "bar"}, key="test-key")
+            assert result == {"id": 123}
         mock_post.assert_called_once()
         args, kwargs = mock_post.call_args
         assert kwargs['json'] == {"foo": "bar"}
@@ -46,14 +48,15 @@ class TestEconomicsService:
         assert kwargs['headers']['Idempotency-Key'] == 'test-key'
 
     @patch('kiosk.services.economics.requests.get')
-    def test_request_http_error(self, mock_get):
+    def test_request_http_error(self, mock_get, app):
         mock_response = MagicMock()
         mock_response.text = "Error detail"
         mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(response=mock_response)
         mock_get.return_value = mock_response
         
-        with pytest.raises(requests.exceptions.HTTPError):
-            EconomicsService._request('GET', 'http://test.url')
+        with app.app_context():
+            with pytest.raises(requests.exceptions.HTTPError):
+                EconomicsService._request('GET', 'http://test.url')
 
     @patch('kiosk.services.economics.EconomicsService._request')
     @patch('kiosk.services.economics.get_db_connection')
@@ -209,7 +212,7 @@ class TestEconomicsService:
     @patch('kiosk.services.economics.get_db_connection')
     @patch('kiosk.services.economics.EconomicsService.find_kiosk_draft_line')
     @patch('kiosk.services.economics.EconomicsService.create_draft_order_line')
-    def test_sync_pending_transfers_inserts_line(self, mock_create_line, mock_find_draft, mock_db):
+    def test_sync_pending_transfers_inserts_line(self, mock_create_line, mock_find_draft, mock_db, app):
         mock_find_draft.return_value = (4000, None) # Draft exists, line does not
         
         mock_lock_conn = MagicMock()
@@ -235,7 +238,8 @@ class TestEconomicsService:
         mock_lock_conn.cursor.return_value.__enter__.return_value = mock_lock_curs
         mock_conn.cursor.return_value.__enter__.return_value = mock_curs
         
-        EconomicsService.sync_pending_transfers()
+        with app.app_context():
+            EconomicsService.sync_pending_transfers()
         
         # Verify line creation was called
         mock_create_line.assert_called_once()
@@ -284,7 +288,7 @@ class TestEconomicsService:
     @patch('kiosk.services.economics.Config')
     @patch('kiosk.services.economics.get_db_connection')
     @patch('kiosk.services.economics.EconomicsService.find_kiosk_draft_line')
-    def test_sync_pending_transfers_network_timeout(self, mock_find, mock_db, mock_config):
+    def test_sync_pending_transfers_network_timeout(self, mock_find, mock_db, mock_config, app):
         """Test sync_pending_transfers handles a request timeout by skipping and not incrementing attempts."""
         mock_config.ECO_MAX_ATTEMPTS = 5
         
@@ -310,7 +314,8 @@ class TestEconomicsService:
         mock_lock_conn.cursor.return_value.__enter__.return_value = mock_lock_curs
         mock_conn.cursor.return_value.__enter__.return_value = mock_curs
         
-        EconomicsService.sync_pending_transfers()
+        with app.app_context():
+            EconomicsService.sync_pending_transfers()
         
         # Verify error handling logged failure and marked attempts=attempts+0
         update_call = [c for c in mock_curs.execute.call_args_list if "UPDATE ecotransfer" in c[0][0]][0]
@@ -324,7 +329,7 @@ class TestEconomicsService:
     @patch('kiosk.services.economics.Config')
     @patch('kiosk.services.economics.get_db_connection')
     @patch('kiosk.services.economics.EconomicsService.find_kiosk_draft_line')
-    def test_sync_pending_transfers_http_error(self, mock_find, mock_db, mock_config):
+    def test_sync_pending_transfers_http_error(self, mock_find, mock_db, mock_config, app):
         """Test sync_pending_transfers handles HTTP 400s (API Reject) by incrementing attempts."""
         mock_config.ECO_MAX_ATTEMPTS = 5
         
@@ -350,7 +355,8 @@ class TestEconomicsService:
         mock_lock_conn.cursor.return_value.__enter__.return_value = mock_lock_curs
         mock_conn.cursor.return_value.__enter__.return_value = mock_curs
         
-        EconomicsService.sync_pending_transfers()
+        with app.app_context():
+            EconomicsService.sync_pending_transfers()
         
         # Verify error handling logged failure and marked attempts=attempts+1
         update_call = [c for c in mock_curs.execute.call_args_list if "UPDATE ecotransfer" in c[0][0]][0]
@@ -362,7 +368,7 @@ class TestEconomicsService:
     @patch('kiosk.services.economics.Config')
     @patch('kiosk.services.economics.get_db_connection')
     @patch('kiosk.services.economics.EconomicsService.find_kiosk_draft_line')
-    def test_sync_pending_transfers_general_error(self, mock_find, mock_db, mock_config):
+    def test_sync_pending_transfers_general_error(self, mock_find, mock_db, mock_config, app):
         """Test sync_pending_transfers handles generic Python exceptions."""
         mock_config.ECO_MAX_ATTEMPTS = 5
         
@@ -388,7 +394,8 @@ class TestEconomicsService:
         mock_lock_conn.cursor.return_value.__enter__.return_value = mock_lock_curs
         mock_conn.cursor.return_value.__enter__.return_value = mock_curs
         
-        EconomicsService.sync_pending_transfers()
+        with app.app_context():
+            EconomicsService.sync_pending_transfers()
         
         # Verify error handling logged failure and marked attempts=attempts+1
         update_call = [c for c in mock_curs.execute.call_args_list if "UPDATE ecotransfer" in c[0][0]][0]
@@ -398,9 +405,10 @@ class TestEconomicsService:
         assert "General Error" in args[1] # errormsg
 
     @patch('kiosk.services.economics.get_db_connection')
-    def test_sync_pending_transfers_lock_acquisition_failure(self, mock_db):
+    def test_sync_pending_transfers_lock_acquisition_failure(self, mock_db, app):
         """Test sync_pending_transfers aborts smoothly when it errors getting the pg_advisory_lock."""
         mock_db.side_effect = Exception('Database unreachable entirely')
         
         # Should catch and not crash
-        EconomicsService.sync_pending_transfers()
+        with app.app_context():
+            EconomicsService.sync_pending_transfers()
