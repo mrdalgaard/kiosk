@@ -34,6 +34,21 @@ def admin_required(f):
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    customer_id = session.get('customerid')
+    
+    # 1. Must be logged in as a valid customer to even see the PIN page
+    if not customer_id:
+        return redirect(url_for('auth.login'))
+        
+    # 2. Must be in the allowed admin list
+    if customer_id not in current_app.config['ADMIN_USER_IDS']:
+         flash("Du har ikke adgang til admin-panelet.", "error")
+         return redirect(url_for('main.index'))
+
+    # 3. If already authenticated, go to index
+    if session.get('admin_authenticated'):
+        return redirect(url_for('admin.index'))
+
     if request.method == 'POST':
         ip = request.remote_addr or 'unknown'
         max_attempts = current_app.config['ADMIN_PIN_MAX_ATTEMPTS']

@@ -89,4 +89,14 @@ def create_app(config_class=Config):
             return customer_id and customer_id in Config.ADMIN_USER_IDS
         return dict(is_admin=is_admin)
 
+    @app.after_request
+    def add_security_headers(response):
+        # Prevent HTML pages from being cached/stored to protect sensitive data on back-button
+        if response.mimetype == 'text/html':
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            response.headers['Vary'] = 'Cookie'
+        return response
+
     return app

@@ -95,6 +95,46 @@
         /* Prevent touch-hold context menu on Android PWA */
         document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
         document.addEventListener('selectstart', function (e) { e.preventDefault(); });
+
+        /* Convert touch-hold into a regular click on release (not while holding) */
+        (function () {
+            var LONG_PRESS_MS = 550; // just above Android's ~500ms long-press threshold
+            var longPressTimer = null;
+            var longPressTarget = null;
+            var isLongPress = false;
+
+            document.addEventListener('touchstart', function (e) {
+                longPressTarget = e.target;
+                isLongPress = false;
+                longPressTimer = setTimeout(function () {
+                    isLongPress = true; // flag only — click fires on touchend
+                }, LONG_PRESS_MS);
+            }, { passive: true });
+
+            document.addEventListener('touchend', function (e) {
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+                if (isLongPress && longPressTarget) {
+                    // Fire click on release, replicating a normal tap
+                    longPressTarget.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                }
+                isLongPress = false;
+                longPressTarget = null;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function () {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+                isLongPress = false;
+            }, { passive: true });
+
+            document.addEventListener('touchcancel', function () {
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+                isLongPress = false;
+            }, { passive: true });
+        })();
+
     </script>
 </body>
 
