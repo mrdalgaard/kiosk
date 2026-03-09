@@ -122,9 +122,11 @@ def statistics_export():
             sales.soldproductname,
             sales.quantity,
             sales.soldsum,
-            customers.customername 
+            customers.customername,
+            COALESCE(ecotransfer.transferred, FALSE) as transferred
         FROM sales
         JOIN customers USING (customerid)
+        LEFT JOIN ecotransfer ON sales.id = ecotransfer.salesid
         {where_clause}
         ORDER BY sales."timestamp" DESC
     """
@@ -140,15 +142,17 @@ def statistics_export():
         cw = csv.writer(si, delimiter=';')
         
         # Header
-        cw.writerow(['Tidspunkt', 'Produkt', 'Antal (Stk)', 'Beløb (kr)', 'Kunde'])
+        cw.writerow(['Tidspunkt', 'Produkt', 'Antal (Stk)', 'Beløb (kr)', 'Kunde', 'Overført til e-conomic'])
         
         # Data
         for r in rows:
-            # r = (timestamp, soldproductname, quantity, soldsum, customername)
+            # r = (timestamp, soldproductname, quantity, soldsum, customername, transferred)
             t = r[0].strftime('%Y-%m-%d %H:%M:%S') if r[0] else ''
             # Format soldsum with comma as decimal separator for Danish Excel
             soldsum_formatted = f"{float(r[3]):.2f}".replace('.', ',')
-            cw.writerow([t, r[1], r[2], soldsum_formatted, r[4]])
+            # Translate boolean to Ja/Nej
+            transferred_text = 'Ja' if r[5] else 'Nej'
+            cw.writerow([t, r[1], r[2], soldsum_formatted, r[4], transferred_text])
             
         # Add UTF-8 BOM for Excel to recognize encoding correctly
         output = '\ufeff' + si.getvalue()

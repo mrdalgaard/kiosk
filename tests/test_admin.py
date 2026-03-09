@@ -733,11 +733,11 @@ def test_statistics_export_endpoint(logged_in_client):
         mock_conn.cursor.return_value.__enter__.return_value = mock_curs
         mock_db.return_value = mock_conn
         
-        # Mock 1 row (timestamp, soldproductname, quantity, soldsum, customername)
+        # Mock 1 row (timestamp, soldproductname, quantity, soldsum, customername, transferred)
         from datetime import datetime
         dt = datetime(2023, 10, 1, 14, 30, 0)
         mock_curs.fetchall.return_value = [
-            (dt, 'Test Product', 2, 40.50, 'Member X')
+            (dt, 'Test Product', 2, 40.50, 'Member X', True)
         ]
         
         response = logged_in_client.get('/admin/statistics/export?start_date=2023-10-01')
@@ -747,8 +747,8 @@ def test_statistics_export_endpoint(logged_in_client):
         
         # Verify CSV content
         csv_content = response.data.decode('utf-8')
-        assert '\ufeffTidspunkt;Produkt;Antal (Stk);Beløb (kr);Kunde' in csv_content
-        assert '2023-10-01 14:30:00;Test Product;2;40,50;Member X' in csv_content
+        assert '\ufeffTidspunkt;Produkt;Antal (Stk);Beløb (kr);Kunde;Overført til e-conomic' in csv_content
+        assert '2023-10-01 14:30:00;Test Product;2;40,50;Member X;Ja' in csv_content
         
 def test_statistics_timeline_endpoint(logged_in_client):
     """Test the JSON timeline endpoint for Chart.js."""
