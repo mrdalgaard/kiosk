@@ -141,13 +141,13 @@ CREATE OR REPLACE VIEW public.todayssalesgrouped AS
     sum(sales.quantity) AS sum
    FROM sales
      JOIN customers USING (customerid)
-  WHERE date_trunc('day'::text, sales."timestamp") = date_trunc('day'::text, now())
+  WHERE CAST(sales."timestamp" AS date) = CURRENT_DATE
   GROUP BY sales.soldproductname, customers.customername
   ORDER BY (sum(sales.quantity)) DESC;
 
 CREATE OR REPLACE VIEW public.purchasehistory AS
  SELECT sales.id,
-    to_char((date_trunc('minute'::text, sales."timestamp") AT TIME ZONE 'Europe/Copenhagen'::text), 'DD/MM-YYYY HH24:MI'::text) AS "time",
+    to_char((date_trunc('minute'::text, sales."timestamp") AT TIME ZONE CURRENT_SETTING('TIMEZONE')), 'DD/MM-YYYY HH24:MI'::text) AS "time",
     sales.quantity,
     sales.soldsum AS salessum,
     customers.customerid,

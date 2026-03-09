@@ -383,3 +383,41 @@ class TestHistory:
         assert response.status_code == 302
         assert '/' in response.headers['Location']
 
+
+class TestSecurityHeaders:
+    """Tests for security headers like Cache-Control."""
+
+    def test_html_responses_have_cache_control(self, client):
+        with patch('kiosk.routes.auth.get_db_connection') as mock_db:
+            mock_conn = MagicMock()
+            mock_cursor = MagicMock()
+            mock_cursor.fetchall.return_value = []
+            mock_conn.__enter__ = lambda s: mock_conn
+            mock_conn.__exit__ = MagicMock(return_value=False)
+            mock_cursor.__enter__ = lambda s: mock_cursor
+            mock_cursor.__exit__ = MagicMock(return_value=False)
+            mock_conn.cursor.return_value = mock_cursor
+            mock_db.return_value = mock_conn
+
+            response = client.get('/')
+            assert response.status_code == 200
+            assert response.headers['Cache-Control'] == 'no-store, no-cache, must-revalidate, max-age=0'
+            assert response.headers['Pragma'] == 'no-cache'
+            assert response.headers['Expires'] == '0'
+            assert response.headers['Vary'] == 'Cookie'
+
+    def test_json_responses_skip_cache_control(self, client):
+        with patch('kiosk.routes.api.get_db_connection') as mock_db:
+            mock_conn = MagicMock()
+            mock_cursor = MagicMock()
+            mock_conn.__enter__ = lambda s: mock_conn
+            mock_conn.__exit__ = MagicMock(return_value=False)
+            mock_cursor.__enter__ = lambda s: mock_cursor
+            mock_cursor.__exit__ = MagicMock(return_value=False)
+            mock_conn.cursor.return_value = mock_cursor
+            mock_db.return_value = mock_conn
+
+            response = client.get('/health')
+            assert response.status_code == 200
+            # Test that we didn't add the HTML-specific cache prevention
+            assert 'no-store' not in response.headers.get('Cache-Control', '')

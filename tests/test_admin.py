@@ -655,3 +655,166 @@ def test_maintenance_delete(logged_in_client):
         assert response.status_code == 302
         assert '/admin/maintenance' in response.headers['Location']
         assert "DELETE FROM mowingmaintenance" in mock_curs.execute.call_args[0][0]
+
+def test_admin_html_responses_have_cache_control(logged_in_client):
+    """Test that authenticated admin pages include Cache-Control headers."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['customername'] = 'Admin'
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.products.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        mock_curs.fetchall.return_value = []
+
+        response = logged_in_client.get('/admin/products')
+        
+        assert response.status_code == 200
+        assert response.headers['Cache-Control'] == 'no-store, no-cache, must-revalidate, max-age=0'
+        assert response.headers['Pragma'] == 'no-cache'
+        assert response.headers['Expires'] == '0'
+        assert response.headers['Vary'] == 'Cookie'
+
+def test_statistics_dashboard_access(logged_in_client):
+    """Test accessing the statistics dashboard HTML page."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    response = logged_in_client.get('/admin/statistics/')
+    assert response.status_code == 200
+    assert b'Salgsstatistik' in response.data
+
+def test_statistics_data_endpoint(logged_in_client):
+    """Test the JSON data endpoint for Chart.js."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.statistics.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        # Mock 2 rows (Label, Quantity, Revenue)
+        mock_curs.fetchall.return_value = [
+            ('Test Product A', 10, 50.00),
+            ('Test Product B', 5, 25.00)
+        ]
+        
+        response = logged_in_client.get('/admin/statistics/data?dimension=product')
+        assert response.status_code == 200
+        assert response.is_json
+        
+        data = response.get_json()
+        assert 'labels' in data
+        assert 'datasets' in data
+        assert data['labels'] == ['Test Product A', 'Test Product B']
+        assert data['datasets'][0]['data'] == [10, 5]  # Quantity
+        assert data['datasets'][1]['data'] == [50.0, 25.0]  # Revenue
+
+def test_statistics_export_endpoint(logged_in_client):
+    """Test the CSV export endpoint."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.statistics.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        # Mock 1 row (timestamp, soldproductname, quantity, soldsum, customername)
+        from datetime import datetime
+        dt = datetime(2023, 10, 1, 14, 30, 0)
+        mock_curs.fetchall.return_value = [
+            (dt, 'Test Product', 2, 40.50, 'Member X')
+        ]
+        
+        response = logged_in_client.get('/admin/statistics/export?start_date=2023-10-01')
+        assert response.status_code == 200
+        assert response.mimetype == 'text/csv'
+        assert b'attachment;filename=salg_raadata_2023-10-01_til_slut.csv' in response.headers.get('Content-Disposition').encode('utf-8')
+        
+        # Verify CSV content
+        csv_content = response.data.decode('utf-8')
+        assert 'Tidspunkt,Produkt,Antal (Stk),Beløb (kr),Kunde' in csv_content
+        assert '2023-10-01 14:30:00,Test Product,2,40.50,Member X' in csv_content
+        
+def test_statistics_timeline_endpoint(logged_in_client):
+    """Test the JSON timeline endpoint for Chart.js."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.statistics.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        # Mock 3 rows (sale_date, soldproductname, daily_quantity)
+        mock_curs.fetchall.return_value = [
+            ('2023-10-01', 'Cola', 5),
+            ('2023-10-02', 'Cola', 2),
+            ('2023-10-02', 'Fanta', 1)
+        ]
+        
+        response = logged_in_client.get('/admin/statistics/data/timeline')
+        assert response.status_code == 200
+        assert response.is_json
+        
+        data = response.get_json()
+        assert data['labels'] == ['2023-10-01', '2023-10-02']
+        
+        # We expect 2 datasets (Cola and Fanta)
+        assert len(data['datasets']) == 2
+        
+        datasets_by_label = {ds['label']: ds for ds in data['datasets']}
+        assert 'Cola' in datasets_by_label
+        assert 'Fanta' in datasets_by_label
+        
+        # Cola: 5 on the 1st, 2 on the 2nd
+        assert datasets_by_label['Cola']['data'] == [5, 2]
+        # Fanta: 0 on the 1st, 1 on the 2nd
+        assert datasets_by_label['Fanta']['data'] == [0, 1]
+
+def test_statistics_timeline_endpoint_customer(logged_in_client):
+    """Test the JSON timeline endpoint specifically for the 'customer' dimension."""
+    with logged_in_client.session_transaction() as sess:
+        sess['customerid'] = 42
+        sess['admin_authenticated'] = True
+
+    with patch('kiosk.routes.admin.statistics.get_db_connection') as mock_db:
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+        mock_conn.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_curs
+        mock_db.return_value = mock_conn
+        
+        # Mock rows: sale_date, customername, daily_val (revenue)
+        mock_curs.fetchall.return_value = [
+            ('2023-11-01', 'Member A', 15.50),
+            ('2023-11-02', 'Member A', 12.00)
+        ]
+        
+        response = logged_in_client.get('/admin/statistics/data/timeline?dimension=customer')
+        assert response.status_code == 200
+        assert response.is_json
+        
+        data = response.get_json()
+        assert data['labels'] == ['2023-11-01', '2023-11-02']
+        assert len(data['datasets']) == 1
+        assert data['datasets'][0]['label'] == 'Member A'
+        # Validates that daily_val is correctly passed as float
+        assert data['datasets'][0]['data'] == [15.50, 12.00]

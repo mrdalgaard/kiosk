@@ -82,4 +82,4 @@ def index():
     return render_template('admin/index.html')
 
 # Import modules so the routes are registered on the blueprint
-from . import products, images, mowing_users, mowing_sections, mowing_maintenance
+from . import products, images, mowing_users, mowing_sections, mowing_maintenance, statistics

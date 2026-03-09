@@ -3,6 +3,14 @@ from psycopg_pool import ConnectionPool
 from psycopg.conninfo import make_conninfo
 from .config import Config
 
+import os
+
+def configure_connection(conn):
+    # Synchronize PostgreSQL session timezone with the Python server's timezone
+    tz = os.environ.get('TZ', 'UTC')
+    conn.execute(f"SET TIME ZONE '{tz}'")
+    conn.commit()  # Ensure the connection is not left in the INTRANS state
+
 def get_db_pool():
     """
     Creates and returns a connection pool using configuration from the app config 
@@ -16,7 +24,7 @@ def get_db_pool():
         user=Config.DB_USER,
         password=Config.DB_PASSWORD
     )
-    return ConnectionPool(conninfo, reconnect_timeout=2, timeout=5.0)
+    return ConnectionPool(conninfo, reconnect_timeout=2, timeout=5.0, configure=configure_connection)
 
 # Global pool instance (initialized in create_app)
 pool = None

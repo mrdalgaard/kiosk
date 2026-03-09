@@ -1,0 +1,312 @@
+{% extends "admin/layout_list.html" %}
+
+{% block title %}Salgsstatistik{% endblock %}
+{% block admin_title %}📊 Salgsstatistik{% endblock %}
+
+{% block admin_head %}
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .stats-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: var(--card-bg);
+        border: 0.125rem solid var(--border-color);
+        border-radius: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .control-group label {
+        font-size: 0.875rem;
+        font-weight: bold;
+        color: var(--text-color);
+    }
+
+    .control-group input,
+    .control-group select {
+        padding: 0.75rem;
+        border: 0.125rem solid var(--border-color);
+        border-radius: 0.5rem;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-size: 1rem;
+    }
+
+    .chart-container {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--card-bg);
+        border: 0.125rem solid var(--border-color);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        box-sizing: border-box;
+        height: 40vh;
+        min-height: 300px;
+        max-height: 500px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div class="flex-1 relative z-1 overflow-y-auto" style="padding-right: 0.5rem;">
+
+    <div class="stats-controls">
+        <div class="control-group">
+            <label for="startDate">Startdato</label>
+            <input type="date" id="startDate" name="startDate">
+        </div>
+        <div class="control-group">
+            <label for="endDate">Slutdato</label>
+            <input type="date" id="endDate" name="endDate">
+        </div>
+        <div class="control-group">
+            <label for="dimension">Gruppér Efter</label>
+            <select id="dimension" name="dimension">
+                <option value="product" selected>Produkt</option>
+                <option value="customer">Medlem</option>
+            </select>
+        </div>
+        <div class="control-group" style="margin-left: auto;">
+            <button id="exportBtn" class="action-btn btn-secondary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+                📥 Eksportér til CSV
+            </button>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <div class="chart-container">
+            <h3 style="color: var(--text-color); margin-top: 0; margin-bottom: 0.5rem; font-size: 1.25rem;">Generel
+                Gruppering</h3>
+            <div class="chart-wrapper">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3 id="timelineTitle"
+                style="color: var(--text-color); margin-top: 0; margin-bottom: 0.5rem; font-size: 1.25rem;">
+                Salgsudvikling (Produkter)</h3>
+            <div class="chart-wrapper">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize default dates with Local Timezone offset correction
+        function toLocalISODate(date) {
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+            return localDate.toISOString().split('T')[0];
+        }
+
+        const today = new Date();
+        const lastMonth = new Date();
+        lastMonth.setDate(today.getDate() - 30);
+
+        document.getElementById('endDate').value = toLocalISODate(today);
+        document.getElementById('startDate').value = toLocalISODate(lastMonth);
+
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        let salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    },
+                    'y-quantity': {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Antal (Stk)',
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+                        },
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    },
+                    'y-revenue': {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Omsætning (kr)',
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+                        },
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    }
+                }
+            }
+        });
+
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        let timelineChart = new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Antal Solgt (Stk)',
+                            color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+                        },
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() }
+                    }
+                }
+            }
+        });
+
+        function loadData() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const dimension = document.getElementById('dimension').value;
+
+            // --- Load Main Grouping Chart ---
+            const url = new URL('{{ url_for("admin.statistics_data") }}', window.location.origin);
+            if (startDate) url.searchParams.append('start_date', startDate);
+            if (endDate) url.searchParams.append('end_date', endDate);
+            url.searchParams.append('dimension', dimension);
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        showToast(data.error, 'error');
+                        return;
+                    }
+
+                    salesChart.data.labels = data.labels;
+                    salesChart.data.datasets = data.datasets;
+                    salesChart.update();
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                    showToast('Kunne ikke hente salgsdata', 'error');
+                });
+
+            // --- Load Timeline Chart ---
+            const timelineUrl = new URL('{{ url_for("admin.statistics_data_timeline") }}', window.location.origin);
+            if (startDate) timelineUrl.searchParams.append('start_date', startDate);
+            if (endDate) timelineUrl.searchParams.append('end_date', endDate);
+            timelineUrl.searchParams.append('dimension', dimension);
+
+            fetch(timelineUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        console.error('Timeline error:', data.error);
+                        return;
+                    }
+
+                    const timelineTitle = document.getElementById('timelineTitle');
+                    if (dimension === 'customer') {
+                        timelineTitle.innerText = "Salgsudvikling (Top 10 Medlemmer)";
+                        timelineChart.options.scales.y.title.text = "Omsætning (kr)";
+                    } else {
+                        timelineTitle.innerText = "Salgsudvikling (Produkter)";
+                        timelineChart.options.scales.y.title.text = "Antal Solgt (Stk)";
+                    }
+
+                    timelineChart.data.labels = data.labels;
+                    timelineChart.data.datasets = data.datasets;
+                    timelineChart.update();
+                })
+                .catch(error => console.error('Error fetching timeline stats:', error));
+        }
+
+        // Event Listeners
+        document.getElementById('startDate').addEventListener('change', loadData);
+        document.getElementById('endDate').addEventListener('change', loadData);
+        document.getElementById('dimension').addEventListener('change', loadData);
+
+        document.getElementById('exportBtn').addEventListener('click', function () {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const dimension = document.getElementById('dimension').value;
+
+            const url = new URL('{{ url_for("admin.statistics_export") }}', window.location.origin);
+            if (startDate) url.searchParams.append('start_date', startDate);
+            if (endDate) url.searchParams.append('end_date', endDate);
+            url.searchParams.append('dimension', dimension);
+
+            window.location.href = url.href;
+        });
+
+        // Initial load
+        loadData();
+    });
+</script>
+{% endblock %}
+
+{% block admin_actions %}
+<div class="flex-1">
+    <a href="{{ url_for('admin.index') }}" class="h-full block no-underline">
+        <button class="action-btn clear-btn h-full w-full" type="button">← Tilbage</button>
+    </a>
+</div>
+{% endblock %}
