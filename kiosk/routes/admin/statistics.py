@@ -26,12 +26,14 @@ def _build_statistics_query(start_date, end_date, dimension):
         params.append(end_date)
         
     # Grouping logic
+    limit_clause = ""
     if dimension == 'product':
         select_col = "sales.soldproductname AS label"
         group_by = "sales.soldproductname"
     elif dimension == 'customer':
         select_col = "customers.customername AS label"
         group_by = "customers.customername"
+        limit_clause = "LIMIT 10"
     elif dimension == 'date':
         select_col = "CAST(sales.\"timestamp\" AS date) AS label"
         group_by = "CAST(sales.\"timestamp\" AS date)"
@@ -50,6 +52,7 @@ def _build_statistics_query(start_date, end_date, dimension):
         {where_clause}
         GROUP BY {group_by}
         ORDER BY total_revenue DESC
+        {limit_clause}
     """
     
     return query, params
