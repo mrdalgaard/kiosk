@@ -135,9 +135,9 @@ def statistics_export():
                 cur.execute(query, params)
                 rows = cur.fetchall()
                 
-        # Create CSV in memory
+        # Create CSV in memory with semicolon delimiter for better Excel compatibility in DK
         si = StringIO()
-        cw = csv.writer(si)
+        cw = csv.writer(si, delimiter=';')
         
         # Header
         cw.writerow(['Tidspunkt', 'Produkt', 'Antal (Stk)', 'Beløb (kr)', 'Kunde'])
@@ -146,9 +146,12 @@ def statistics_export():
         for r in rows:
             # r = (timestamp, soldproductname, quantity, soldsum, customername)
             t = r[0].strftime('%Y-%m-%d %H:%M:%S') if r[0] else ''
-            cw.writerow([t, r[1], r[2], f"{float(r[3]):.2f}", r[4]])
+            # Format soldsum with comma as decimal separator for Danish Excel
+            soldsum_formatted = f"{float(r[3]):.2f}".replace('.', ',')
+            cw.writerow([t, r[1], r[2], soldsum_formatted, r[4]])
             
-        output = si.getvalue()
+        # Add UTF-8 BOM for Excel to recognize encoding correctly
+        output = '\ufeff' + si.getvalue()
         
         filename = f"salg_raadata_{start_date or 'start'}_til_{end_date or 'slut'}.csv"
         

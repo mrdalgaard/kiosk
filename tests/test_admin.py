@@ -747,8 +747,8 @@ def test_statistics_export_endpoint(logged_in_client):
         
         # Verify CSV content
         csv_content = response.data.decode('utf-8')
-        assert 'Tidspunkt,Produkt,Antal (Stk),Beløb (kr),Kunde' in csv_content
-        assert '2023-10-01 14:30:00,Test Product,2,40.50,Member X' in csv_content
+        assert '\ufeffTidspunkt;Produkt;Antal (Stk);Beløb (kr);Kunde' in csv_content
+        assert '2023-10-01 14:30:00;Test Product;2;40,50;Member X' in csv_content
         
 def test_statistics_timeline_endpoint(logged_in_client):
     """Test the JSON timeline endpoint for Chart.js."""
