@@ -93,11 +93,13 @@ def mowing_status():
                 # 3. Overdue Maintenance
                 maintenance_items = get_maintenance_items(curs)
                 overdue_maintenance = [item for item in maintenance_items if item['remaining_h'] <= 0]
+                close_maintenance = [item for item in maintenance_items if 0 < item['remaining_h'] <= 5]
                 
         return render_template('index.html', 
                                mowing_history=mowing_history, 
                                last_mowed=last_mowed, 
-                               overdue_maintenance=overdue_maintenance)
+                               overdue_maintenance=overdue_maintenance,
+                               close_maintenance=close_maintenance)
     except Exception as e:
         app.logger.error(f"Error accessing database: {e}")
         return render_template('index.html', error=str(e), mowing_history=[], last_mowed=[], overdue_maintenance=[])

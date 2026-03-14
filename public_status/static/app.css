@@ -12,26 +12,47 @@
     --accent-blue: #2563eb;
     --success-green: #10b981;
     --danger-red: #ef4444;
+
+    --app-padding: 1rem;
+    --app-gap: 1.25rem;
+    --panel-padding: 1.5rem;
+    --table-cell-padding-v: 0.6rem;
+    --table-cell-padding-h: 0.5rem;
+
+    /* Base Typography (will be scaled by JS) */
+    --font-h1: 2.25rem;
+    --font-h2: 1.5rem;
+    --font-h3: 1.25rem;
+    --font-key: 3.5rem;
+    --font-button: 1.5rem;
+    --font-badge: 1rem;
+
+    /* Base Heights */
+    --pin-height: 5.5rem;
+    --keypad-gap: 1rem;
 }
+
 
 .app-container {
     display: flex;
-    width: 100vw;
-    height: 100vh;
-    padding: 1.5rem;
-    gap: 1.5rem;
+    width: 100%;
+    height: 100%;
+    padding: var(--app-padding);
+    gap: var(--app-gap);
     box-sizing: border-box;
 }
 
-/* Viewport lock to prevent any unwanted scrolling on tablet */
+/* Base Layout */
 html,
 body {
-    height: 100vh !important;
+    width: 100% !important;
+    height: 100% !important;
     overflow: hidden !important;
     margin: 0;
     padding: 0;
     background-color: var(--bg-color);
     font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 
@@ -42,20 +63,21 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: var(--panel-padding);
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
 }
 
 /* Left Pane: Interaction */
 .interaction-pane {
-    flex: 1.1;
+    flex: 1.5;
     min-width: 0;
 }
 
 /* Right Pane: Info */
 .info-pane {
-    flex: 0.9;
+    flex: 0.85;
     min-width: 0;
 }
 
@@ -72,11 +94,13 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 80%;
-    max-width: 400px;
-    opacity: 0.04;
+    max-width: 25rem;
+    opacity: 0.02;
     pointer-events: none;
     z-index: 0;
 }
+
+
 
 .brand-header h1 {
     font-size: 2rem;
@@ -90,154 +114,6 @@ body {
     font-weight: 400;
     color: var(--text-muted);
     margin: 0;
-}
-
-/* PIN Display */
-.pin-display-wrapper {
-    background: #f9fafb;
-    border: 3px dashed var(--border-color);
-    border-radius: 8px;
-    height: 5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-}
-
-.pin-display-fluid {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    letter-spacing: 0.5rem;
-}
-
-.login-error {
-    background: #fee2e2;
-    border: 2px solid var(--danger-red);
-    color: #b91c1c;
-    padding: 1rem;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-
-/* Keypad Grid */
-.keypad-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 0.75rem;
-    flex-grow: 1;
-    margin-bottom: 1.5rem;
-}
-
-.key-card {
-    background: #ffffff;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.key-card:active {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-}
-
-.key-num {
-    font-size: 3.5rem;
-    font-weight: bold;
-    color: var(--text-dark);
-}
-
-.key-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* Touch-optimized active states rather than hover states for tablet */
-.clear-btn {
-    border-color: var(--danger-red);
-}
-
-.clear-btn .key-text {
-    color: var(--danger-red);
-}
-
-.clear-btn:active {
-    background: #fee2e2;
-}
-
-.submit-btn {
-    background: var(--success-green);
-    border-color: var(--success-green);
-}
-
-.submit-btn .key-text {
-    color: #ffffff;
-}
-
-.submit-btn:active {
-    background: #059669;
-    /* Darker green element */
-    border-color: #059669;
-}
-
-/* Utility Buttons */
-.utility-actions {
-    display: flex;
-    gap: 1rem;
-    height: 4.5rem;
-    flex-shrink: 0;
-}
-
-.util-form {
-    flex: 1;
-    display: flex;
-}
-
-.action-btn {
-    flex: 1;
-    border-radius: 8px;
-    font-size: 1.25rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    border: 2px solid transparent;
-}
-
-.action-btn:active {
-    transform: scale(0.98);
-}
-
-.btn-secondary {
-    background: #ffffff;
-    color: var(--brand-color);
-    border-color: var(--brand-color);
-}
-
-.btn-secondary:active {
-    background: #ecfdf5;
-}
-
-.btn-accent {
-    background: var(--accent-blue);
-    color: #ffffff;
-}
-
-.btn-accent:active {
-    background: #1d4ed8;
 }
 
 /* Right Pane: Table */
@@ -279,23 +155,16 @@ body {
     padding: 1rem 0.5rem;
     color: var(--text-dark);
     font-size: 1.1rem;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+    word-break: break-all;
     border-bottom: 1px solid #e5e7eb;
 }
 
 .data-table tr:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.02);
-    /* Transparent equivalent to #f9fafb to let watermark show through */
 }
 
 .col-medlem {
     width: 50%;
-}
-
-.col-vare {
-    width: 30%;
 }
 
 th.col-antal,
@@ -310,7 +179,6 @@ td.col-antal {
     color: var(--text-dark);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    /* Pill shape */
     font-weight: bold;
 }
 
@@ -321,245 +189,81 @@ td.col-antal {
     font-size: 1.2rem;
 }
 
-
-
-/* Product Grid for Main Page */
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 1rem;
-    overflow-y: auto;
-    padding-bottom: 1rem;
-    align-content: start;
-}
-
-.product-card {
-    background: #ffffff;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 1rem;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.1s;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    height: 100%;
-    box-sizing: border-box;
-}
-
-.product-card:active {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-    transform: scale(0.96);
-}
-
-.product-image {
-    height: 80px;
-    width: 100%;
-    object-fit: contain;
-    margin-bottom: 0.75rem;
-}
-
-.product-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-    flex-grow: 1;
-    /* Pushes price to bottom */
-}
-
-.product-price {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: var(--brand-color);
-}
-
 /* =========================================
-   Forms and Inputs
+   Utility Classes (Moved to end for precedence)
    ========================================= */
-.form-group {
-    margin-bottom: 0.7rem;
-}
-
-.form-group label {
-    display: block;
-    font-size: 1.05rem;
-    font-weight: bold;
-    color: var(--text-dark);
-    margin-bottom: 0.2rem;
-}
-
-.form-input,
-.form-control {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    font-size: 1.05rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background-color: white;
-    color: var(--text-dark);
-    box-sizing: border-box;
-    transition: border-color 0.2s;
-}
-
-.form-control {
-    font-size: 1.5rem;
-    /* Larger scaling for mowing */
-    padding: 0.75rem;
-}
-
-.form-input:focus,
-.form-control:focus {
-    outline: none;
-    border-color: var(--brand-color);
-}
-
-select.form-input,
-select.form-control {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1em;
-}
-
-.checkbox-label {
+.flex {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.05rem;
-    color: var(--text-dark);
-    cursor: pointer;
 }
 
-.checkbox-label input[type="checkbox"] {
-    width: 1.5rem;
-    height: 1.5rem;
-    accent-color: var(--brand-color);
-}
-
-/* =========================================
-   Status and Inline Buttons (Lists)
-   ========================================= */
-.status-active {
-    color: var(--brand-color);
-    font-weight: bold;
-}
-
-.status-disabled {
-    color: var(--danger-red);
-    font-weight: bold;
-}
-
-.inline-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 0.6rem 0.5rem;
-    border-radius: 8px;
-    font-size: 1.05rem;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    transition: opacity 0.15s;
-    white-space: nowrap;
-    min-height: 2.8rem;
-    box-sizing: border-box;
-}
-
-.inline-btn:active {
-    opacity: 0.7;
-}
-
-.inline-btn-edit {
-    background-color: var(--brand-color);
-    color: white;
-}
-
-.inline-btn-delete {
-    background-color: #fee2e2;
-    color: var(--danger-red);
-}
-
-/* =========================================
-   Image Gallery Components
-   ========================================= */
-.gallery-card {
-    border: 2px solid var(--border-color);
-    padding: 0.75rem;
-    border-radius: 10px;
-    text-align: center;
-    background-color: white;
+.flex-col {
     display: flex;
     flex-direction: column;
 }
 
-.gallery-card:active {
-    transform: scale(0.98);
+.text-left {
+    text-align: left;
 }
 
-.gallery-thumb {
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0.5rem;
+.text-var-brand-color {
+    color: var(--brand-color);
 }
 
-.gallery-thumb img {
-    max-height: 100%;
-    max-width: 100%;
-    border-radius: 4px;
+.border-b-2 {
+    border-bottom: 0.125rem solid transparent;
 }
 
-.gallery-name {
-    font-size: 0.85rem;
-    word-break: break-all;
-    margin-bottom: 0.5rem;
-    color: var(--text-dark);
+.border-var-border-color {
+    border-color: var(--border-color);
+}
+
+.flex-1 {
     flex: 1;
 }
 
-.delete-btn {
+.w-full {
     width: 100%;
-    padding: 0.5rem;
-    background-color: var(--danger-red);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
 }
 
-.delete-btn:active {
-    opacity: 0.7;
+.h-full {
+    height: 100%;
 }
 
-.upload-area {
-    background-color: rgba(0, 0, 0, 0.02);
-    border: 2px dashed var(--border-color);
-    border-radius: 10px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-shrink: 0;
+.relative {
+    position: relative;
+}
+
+.z-1 {
+    z-index: 1;
+}
+
+.mb-1 {
     margin-bottom: 1rem;
 }
 
-.upload-area input[type="file"] {
-    font-size: 1rem;
-    flex: 1;
+.gap-05 {
+    gap: 0.5rem;
+}
+
+.gap-1 {
+    gap: 1rem;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.pb-05 {
+    padding-bottom: 0.5rem;
+}
+
+.title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.title-with-icon span {
+    font-size: 1.25em;
+    line-height: 1;
 }

@@ -11,6 +11,26 @@
     <meta http-equiv="refresh" content="300">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    
+    <!-- Dynamic REM Scaling for 1:1 pixel-wise linear scaling -->
+    <script>
+        (function () {
+            function updateFontSize() {
+                var BASE_WIDTH = 1024;
+                var BASE_HEIGHT = 820;
+
+                var widthScale = window.innerWidth / BASE_WIDTH;
+                var heightScale = window.innerHeight / BASE_HEIGHT;
+
+                var scale = Math.min(widthScale, heightScale);
+
+                document.documentElement.style.fontSize = (scale * 16) + 'px';
+            }
+
+            window.addEventListener('resize', updateFontSize);
+            updateFontSize();
+        })();
+    </script>
 
 </head>
 

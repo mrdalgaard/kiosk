@@ -61,8 +61,13 @@ def mowing_status():
             
             maintenance_items = get_maintenance_items(curs)
             overdue_maintenance = [item for item in maintenance_items if item['remaining_h'] <= 0]
+            close_maintenance = [item for item in maintenance_items if 0 < item['remaining_h'] <= 5]
 
-    return render_template('mowing_status.html', mowing_history=mowing_history, last_mowed=last_mowed, overdue_maintenance=overdue_maintenance)
+    return render_template('mowing_status.html', 
+                           mowing_history=mowing_history, 
+                           last_mowed=last_mowed, 
+                           overdue_maintenance=overdue_maintenance,
+                           close_maintenance=close_maintenance)
 
 @bp.route('/mowing_maintenance')
 @login_required

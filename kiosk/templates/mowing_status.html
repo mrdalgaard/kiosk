@@ -30,6 +30,22 @@
         </div>
         {% endif %}
 
+        {% if close_maintenance %}
+        <div
+            style="background-color: #fef9c3; border-left: 0.25rem solid #facc15; color: #854d0e; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1.5rem; flex-shrink: 0;">
+            <div
+                style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>⚠️</span> Vedligeholdelse nærmer sig
+            </div>
+            <ul style="margin: 0; padding-left: 1.5rem; font-size: 1.1rem; line-height: 1.4;">
+                {% for item in close_maintenance %}
+                <li><strong>{{ item.maintenance_type }}</strong> skal snart udføres ({{ "%.1f"|format(item.remaining_h)
+                    }} timer tilbage)</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <div class="info-header" style="position: relative; z-index: 1;">
             <h3>Dage siden sidste klipning</h3>
         </div>

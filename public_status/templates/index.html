@@ -1,29 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="app-container">
+<div class="app-container" style="justify-content: center;">
 
     <!-- Left Column: Needs Mowing Pane (Approx 50%) -->
-    <div class="panel interaction-pane" style="flex: 1; display: flex; flex-direction: column;">
-        <div class="brand-header"
-            style="text-align: left; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-            <h1 style="color: var(--brand-color); font-size: 2rem; margin: 0;">AASvK Greenteam</h1>
+    <div class="panel interaction-pane" style="flex: 1;">
+        <div class="brand-header border-b-2 border-var-border-color pb-05 mb-1 text-left">
+            <h1 class="text-var-brand-color m-0" style="font-size: 2rem;">AASvK Greenteam</h1>
         </div>
-
-        {% if error %}
-        <div
-            style="background-color: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; flex-shrink: 0;">
-            <div
-                style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span>⚠️</span> Systemfejl
-            </div>
-            <p>{{ error }}</p>
-        </div>
-        {% endif %}
 
         {% if overdue_maintenance %}
         <div
-            style="background-color: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; flex-shrink: 0;">
+            style="background-color: #fee2e2; border-left: 0.25rem solid #ef4444; color: #991b1b; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1.5rem; flex-shrink: 0;">
             <div
                 style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                 <span>⚠️</span> Maskinvedligehold påkrævet
@@ -37,11 +25,27 @@
         </div>
         {% endif %}
 
+        {% if close_maintenance %}
+        <div
+            style="background-color: #fef9c3; border-left: 0.25rem solid #facc15; color: #854d0e; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1.5rem; flex-shrink: 0;">
+            <div
+                style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>⚠️</span> Vedligeholdelse nærmer sig
+            </div>
+            <ul style="margin: 0; padding-left: 1.5rem; font-size: 1.1rem; line-height: 1.4;">
+                {% for item in close_maintenance %}
+                <li><strong>{{ item.maintenance_type }}</strong> skal snart udføres ({{ "%.1f"|format(item.remaining_h)
+                    }} timer tilbage)</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <div class="info-header" style="position: relative; z-index: 1;">
             <h3>Dage siden sidste klipning</h3>
         </div>
 
-        <div class="table-scroll-area" style="flex: 1; position: relative; z-index: 1; margin-bottom: 1rem;">
+        <div class="table-scroll-area flex-1 relative z-1 mb-1">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -71,16 +75,15 @@
     </div>
 
     <!-- Right Column: History Pane (Approx 50%) -->
-    <div class="panel info-pane" style="flex: 1; display: flex; flex-direction: column; position: relative;">
+    <div class="panel info-pane" style="flex: 1;">
         <!-- Logo Watermark -->
-        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}"
-            style="opacity: 0.02; max-width: 500px;" alt="AaSvK Logo">
+        <img class="brand-watermark" src="{{ url_for('static', filename='logo.png') }}" alt="AaSvK Logo">
 
         <div class="info-header" style="position: relative; z-index: 1;">
             <h3>Klippelog</h3>
         </div>
 
-        <div class="table-scroll-area" style="flex: 1; margin-bottom: 1rem; position: relative; z-index: 1;">
+        <div class="table-scroll-area flex-1 mb-1 relative z-1">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -112,4 +115,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
