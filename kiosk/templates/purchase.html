@@ -12,13 +12,11 @@
     <img id="success-svg" src="{{ url_for('static', filename='purchaseComplete.svg') }}"
         style="width: 100%; height: 100%; object-fit: contain; padding: 2rem; box-sizing: border-box;"
         alt="Køb Gennemført">
-    <audio id="success-audio">
+    <audio autoplay>
         <source src="{{ url_for('static', filename='ka-ching.wav') }}" type="audio/wav">
     </audio>
     <script>
         document.getElementById('success-svg').src += '?v=' + new Date().getTime();
-        var audio = document.getElementById('success-audio');
-        if (audio) audio.play();
     </script>
 </div>
 {% endblock %}
