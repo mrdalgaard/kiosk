@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kiosk-cache-v6';
+const CACHE_NAME = 'kiosk-cache-v7';
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 // Assets to cache aggressively on install
@@ -7,7 +7,7 @@ const PRECACHE_URLS = [
     '/static/app.css',
     '/static/manifest.json',
     '/static/logo.png',
-    '/static/ka-ching.wav',
+    '/static/ka-ching.mp3',
     '/static/purchaseComplete.svg'
 ];
 
