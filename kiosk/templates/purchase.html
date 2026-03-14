@@ -17,10 +17,8 @@
     </audio>
     <script>
         document.getElementById('success-svg').src += '?v=' + new Date().getTime();
-        setTimeout(function () {
-            var audio = document.getElementById('success-audio');
-            if (audio) audio.play();
-        }, 2000);
+        var audio = document.getElementById('success-audio');
+        if (audio) audio.play();
     </script>
 </div>
 {% endblock %}
